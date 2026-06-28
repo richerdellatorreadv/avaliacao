@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -39,7 +40,7 @@
     <!-- ESTILOS CUSTOMIZADOS (CSS INLINE)                            -->
     <!-- ============================================================ -->
     <style>
-        body { background-color: #f8fafc; }
+        /* body bg moved to tailwind */
 
         /* ========== REGRAS @media print PARA PDF PREMIUM ========== */
         @media print {
@@ -148,6 +149,49 @@
         .callout-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
         .callout-alert   { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
 
+        /* ========== DARK MODE SWITCH (Custom CSS) ========== */
+        .switch {
+            --hue: 223;
+            --trans-dur: 0.4s;
+            --trans-timing: cubic-bezier(0.65,0,0.35,1);
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            font-size: 14px; 
+        }
+        .switch__input, .switch__input:before { background-color: hsl(var(--hue),10%,10%); }
+        .switch__input { border-radius: 0.75em; cursor: pointer; display: block; width: 3em; height: 1.5em; transition: background-color var(--trans-dur) var(--trans-timing); -webkit-appearance: none; appearance: none; }
+        .switch__input:before { border-radius: 50%; content: ""; display: block; position: absolute; top: 0.125em; left: 0.125em; width: 1.25em; height: 1.25em; transition: background-color var(--trans-dur) var(--trans-timing), transform var(--trans-dur) var(--trans-timing); }
+        .switch__icon, .switch__icon-part { display: block; position: absolute; top: 0; left: 0; }
+        .switch__icon { background-color: hsl(var(--hue),10%,90%); border-radius: 50%; overflow: hidden; pointer-events: none; top: 0.125em; left: 0.125em; width: 1.25em; height: 1.25em; transition: transform var(--trans-dur) var(--trans-timing); }
+        .switch__icon-part { transition: box-shadow var(--trans-dur) var(--trans-timing), transform var(--trans-dur) var(--trans-timing); }
+        .switch__icon-part--1, .switch__icon-part--2, .switch__icon-part--3 { border-radius: 50%; }
+        .switch__icon-part--1 { background-color: hsl(var(--hue),10%,90%); top: calc(50% - 0.375em); left: calc(50% - 0.375em); width: 0.75em; height: 0.75em; }
+        .switch__icon-part--2 { background-color: hsl(var(--hue),10%,10%); top: calc(50% - 0.4375em); left: calc(50% - 0.0625em); width: 0.5em; height: 0.5em; transform: translate(-0.1875em,0.1875em) scale(0.2); }
+        .switch__icon-part--3 { box-shadow: 0 0 0 0.625em hsl(var(--hue),10%,10%) inset; width: 1.25em; height: 1.25em; transform: scale(0.25); }
+        .switch__icon-part--3 ~ .switch__icon-part { background-color: hsl(var(--hue),10%,10%); border-radius: 0.0625em; top: 50%; left: 50%; width: 0.125em; height: 0.1875em; transform-origin: 50% 0; }
+        .switch__icon-part--4 { transform: translateX(-50%) rotate(0) translateY(0.25em); }
+        .switch__icon-part--5 { transform: translateX(-50%) rotate(45deg) translateY(0.25em); }
+        .switch__icon-part--6 { transform: translateX(-50%) rotate(90deg) translateY(0.25em); }
+        .switch__icon-part--7 { transform: translateX(-50%) rotate(135deg) translateY(0.25em); }
+        .switch__icon-part--8 { transform: translateX(-50%) rotate(180deg) translateY(0.25em); }
+        .switch__icon-part--9 { transform: translateX(-50%) rotate(225deg) translateY(0.25em); }
+        .switch__icon-part--10 { transform: translateX(-50%) rotate(270deg) translateY(0.25em); }
+        .switch__icon-part--11 { transform: translateX(-50%) rotate(315deg) translateY(0.25em); }
+        .switch__sr { overflow: hidden; position: absolute; width: 1px; height: 1px; }
+        .switch__input:checked { background-color: hsl(var(--hue),10%,90%); }
+        .switch__input:checked:before, .switch__input:checked ~ .switch__icon { transform: translateX(1.5em); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--2 { transform: translate(0,0) scale(1); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--3 { box-shadow: 0 0 0 0.25em hsl(var(--hue),10%,10%) inset; transform: scale(1); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--4 { transform: translateX(-50%) rotate(0) translateY(0.625em) scale(0); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--5 { transform: translateX(-50%) rotate(45deg) translateY(0.625em) scale(0); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--6 { transform: translateX(-50%) rotate(90deg) translateY(0.625em) scale(0); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--7 { transform: translateX(-50%) rotate(135deg) translateY(0.625em) scale(0); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--8 { transform: translateX(-50%) rotate(180deg) translateY(0.625em) scale(0); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--9 { transform: translateX(-50%) rotate(225deg) translateY(0.625em) scale(0); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--10 { transform: translateX(-50%) rotate(270deg) translateY(0.625em) scale(0); }
+        .switch__input:checked ~ .switch__icon .switch__icon-part--11 { transform: translateX(-50%) rotate(315deg) translateY(0.625em) scale(0); }
+
         /* ========== DIVERSOS ========== */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -164,7 +208,7 @@
         .print-table tr:nth-child(even) { background: #f8fafc; }
     </style>
 </head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="text-slate-800 dark:text-slate-100 antialiased min-h-screen flex flex-col">
 
     <!-- Tooltip Global do Corpo (posição fixa, segue o mouse) -->
     <div class="body-tooltip" id="body-tooltip"></div>
@@ -181,10 +225,27 @@
                     <p class="text-xs text-slate-400 font-medium tracking-wider uppercase mt-1">Avaliação Antropométrica Avançada</p>
                 </div>
             </div>
-            <button onclick="window.print()" class="bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 border border-white/10 backdrop-blur-sm shadow-sm group">
-                <i class="fa-solid fa-file-pdf text-red-400 group-hover:scale-110 transition-transform"></i>
-                Exportar Relatório PDF
-            </button>
+            <div class="flex gap-4 items-center">
+                <!-- Custom Logo Upload -->
+                <input type="file" id="logo-upload" class="hidden" accept="image/*">
+                <button onclick="document.getElementById('logo-upload').click()" class="text-xs text-slate-400 hover:text-white transition-colors" title="Personalizar Logo do PDF">
+                    <i class="fa-solid fa-image"></i> Logo
+                </button>
+                
+                <!-- Dark Mode Switch -->
+                <label class="switch mr-2" title="Dark Mode">
+                    <input class="switch__input" type="checkbox" role="switch" id="dark-mode-toggle" />
+                    <span class="switch__icon">
+                        <span class="switch__icon-part switch__icon-part--1"></span><span class="switch__icon-part switch__icon-part--2"></span><span class="switch__icon-part switch__icon-part--3"></span><span class="switch__icon-part switch__icon-part--4"></span><span class="switch__icon-part switch__icon-part--5"></span><span class="switch__icon-part switch__icon-part--6"></span><span class="switch__icon-part switch__icon-part--7"></span><span class="switch__icon-part switch__icon-part--8"></span><span class="switch__icon-part switch__icon-part--9"></span><span class="switch__icon-part switch__icon-part--10"></span><span class="switch__icon-part switch__icon-part--11"></span>
+                    </span>
+                    <span class="switch__sr">Dark Mode</span>
+                </label>
+
+                <button onclick="window.print()" class="bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 border border-white/10 backdrop-blur-sm shadow-sm group">
+                    <i class="fa-solid fa-file-pdf text-red-400 group-hover:scale-110 transition-transform"></i>
+                    Exportar PDF
+                </button>
+            </div>
         </div>
     </header>
 
@@ -192,21 +253,24 @@
     <main class="flex-grow max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
         
         <!-- ===== CABEÇALHO DO RELATÓRIO (Print Only) ===== -->
-        <div class="hidden print-show mb-6 border-b-2 pb-4 border-slate-200" style="display:none;">
+        <div class="hidden print-show mb-6 border-b-2 pb-4 border-slate-200 dark:border-slate-700" style="display:none;">
             <div class="flex justify-between items-end">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-900 leading-tight">Bio<span style="color:#10b981;">Metrics</span> Pro</h1>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Relatório Oficial de Avaliação Física Antropométrica</p>
+                <div class="flex items-center">
+                    <img id="custom-logo" src="" class="hidden h-10 object-contain mr-3">
+                    <div id="default-logo-text">
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-white leading-tight">Bio<span style="color:#10b981;">Metrics</span> Pro</h1>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Relatório Oficial de Avaliação Física Antropométrica</p>
+                    </div>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-slate-500" id="print-date"></p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400" id="print-date"></p>
                     <p class="text-xs text-slate-400">Protocolo: Jackson, Pollock & Ward (1980) — 7 Dobras</p>
                 </div>
             </div>
         </div>
 
         <!-- ===== FICHA DO ALUNO (Print Only) ===== -->
-        <div class="hidden print-show mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200" style="display:none;">
+        <div class="hidden print-show mb-5 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700" style="display:none;">
             <div class="grid grid-cols-5 gap-3">
                 <div class="col-span-2">
                     <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Avaliado</p>
@@ -233,100 +297,114 @@
             <div class="lg:col-span-4 space-y-5 print-hide">
                 
                 <!-- Dados Básicos -->
-                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
-                    <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-id-card text-emerald-500 bg-emerald-50 p-2 rounded-lg"></i> Dados Básicos
                     </h2>
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nome Completo</label>
-                            <input type="text" id="nome" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700 text-sm">
+                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nome Completo</label>
+                            <input type="text" id="nome" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700 dark:text-slate-200 text-sm">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Gênero</label>
+                                <select id="genero" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 font-bold text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Feminino</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Fator de Atividade</label>
+                                <select id="atividade" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 font-bold text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="1.2">Sedentário</option>
+                                    <option value="1.375">Leve (1-3x/sem)</option>
+                                    <option value="1.55">Moderado (3-5x/sem)</option>
+                                    <option value="1.725">Intenso (6-7x/sem)</option>
+                                    <option value="1.9">Atleta (2x/dia)</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="grid grid-cols-3 gap-3">
-                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Idade</label><input type="number" id="idade" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-center font-bold text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
-                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Peso (kg)</label><input type="number" step="0.1" id="peso" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-center font-bold text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
-                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Altura (cm)</label><input type="number" id="altura" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-center font-bold text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                            <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Idade</label><input type="number" id="idade" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 text-center font-bold text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                            <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Peso (kg)</label><input type="number" step="0.1" id="peso" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 text-center font-bold text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                            <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Altura (cm)</label><input type="number" id="altura" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-2 text-center font-bold text-slate-700 dark:text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Perímetros -->
-                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
-                    <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-ruler-combined text-blue-500 bg-blue-50 p-2 rounded-lg"></i> Perímetros (cm)
                     </h2>
                     <div class="grid grid-cols-2 gap-3 mb-4">
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Pescoço</label><input type="number" step="0.1" id="pescoco" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Ombro</label><input type="number" step="0.1" id="ombro" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tórax Relaxado</label><input type="number" step="0.1" id="torax_rel" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tórax Inspirado</label><input type="number" step="0.1" id="torax_insp" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Cintura</label><input type="number" step="0.1" id="cintura" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 font-bold"></div>
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Abdome</label><input type="number" step="0.1" id="abdome_per" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
-                        <div class="col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Quadril</label><input type="number" step="0.1" id="quadril" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 font-bold"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Pescoço</label><input type="number" step="0.1" id="pescoco" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Ombro</label><input type="number" step="0.1" id="ombro" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Tórax Relaxado</label><input type="number" step="0.1" id="torax_rel" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Tórax Inspirado</label><input type="number" step="0.1" id="torax_insp" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Cintura</label><input type="number" step="0.1" id="cintura" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 font-bold"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Abdome</label><input type="number" step="0.1" id="abdome_per" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="col-span-2"><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Quadril</label><input type="number" step="0.1" id="quadril" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 font-bold"></div>
                     </div>
                     <!-- Bilaterais -->
-                    <div class="grid grid-cols-3 gap-2 items-center text-xs border-t border-slate-100 pt-3">
+                    <div class="grid grid-cols-3 gap-2 items-center text-xs border-t border-slate-100 dark:border-slate-700 pt-3">
                         <div class="font-bold text-slate-400 uppercase tracking-wide">Membro</div>
                         <div class="text-center font-bold text-slate-400 uppercase tracking-wide">Esq.</div>
                         <div class="text-center font-bold text-slate-400 uppercase tracking-wide">Dir.</div>
-                        <div class="font-semibold text-slate-600">Braço Rel.</div>
-                        <div><input type="number" step="0.1" id="braco_rel_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div><input type="number" step="0.1" id="braco_rel_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div class="font-semibold text-slate-600">Braço Cont.</div>
-                        <div><input type="number" step="0.1" id="braco_cont_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div><input type="number" step="0.1" id="braco_cont_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div class="font-semibold text-slate-600">Antebraço</div>
-                        <div><input type="number" step="0.1" id="antebraco_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div><input type="number" step="0.1" id="antebraco_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div class="font-semibold text-slate-600">Coxa</div>
-                        <div><input type="number" step="0.1" id="coxa_per_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div><input type="number" step="0.1" id="coxa_per_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div class="font-semibold text-slate-600">Panturrilha</div>
-                        <div><input type="number" step="0.1" id="panturrilha_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
-                        <div><input type="number" step="0.1" id="panturrilha_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600 dark:text-slate-400">Braço Rel.</div>
+                        <div><input type="number" step="0.1" id="braco_rel_e" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="braco_rel_d" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600 dark:text-slate-400">Braço Cont.</div>
+                        <div><input type="number" step="0.1" id="braco_cont_e" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="braco_cont_d" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600 dark:text-slate-400">Antebraço</div>
+                        <div><input type="number" step="0.1" id="antebraco_e" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="antebraco_d" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600 dark:text-slate-400">Coxa</div>
+                        <div><input type="number" step="0.1" id="coxa_per_e" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="coxa_per_d" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600 dark:text-slate-400">Panturrilha</div>
+                        <div><input type="number" step="0.1" id="panturrilha_e" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="panturrilha_d" value="" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
                     </div>
                 </div>
 
                 <!-- Dobras Cutâneas -->
-                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                             <i class="fa-solid fa-hand-pinch text-amber-500 bg-amber-50 p-2 rounded-lg"></i> Dobras Cutâneas
                         </h2>
-                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded uppercase">(mm)</span>
+                        <span class="text-[10px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2 py-1 rounded uppercase">(mm)</span>
                     </div>
                     <div class="grid grid-cols-2 gap-x-5 gap-y-2.5">
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Subescapular</span><input type="number" step="0.1" id="subescapular" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Tríceps</span><input type="number" step="0.1" id="triceps" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Bíceps</span><input type="number" step="0.1" id="biceps" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Peitoral/Tórax</span><input type="number" step="0.1" id="peitoral" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Axilar Média</span><input type="number" step="0.1" id="axilar" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Suprailíaca</span><input type="number" step="0.1" id="suprailiaca" value="" class="w-16 bg-amber-50 border border-amber-200 rounded text-center py-1 font-bold text-sm text-amber-700 focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Abdominal</span><input type="number" step="0.1" id="abdominal" value="" class="w-16 bg-amber-50 border border-amber-200 rounded text-center py-1 font-bold text-sm text-amber-700 focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Coxa Medial</span><input type="number" step="0.1" id="coxa" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-1 col-span-2"><span class="text-xs font-semibold text-slate-600">Panturrilha Medial</span><input type="number" step="0.1" id="panturrilha_dobra" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Subescapular</span><input type="number" step="0.1" id="subescapular" value="" class="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Tríceps</span><input type="number" step="0.1" id="triceps" value="" class="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Bíceps</span><input type="number" step="0.1" id="biceps" value="" class="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Peitoral/Tórax</span><input type="number" step="0.1" id="peitoral" value="" class="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Axilar Média</span><input type="number" step="0.1" id="axilar" value="" class="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Suprailíaca</span><input type="number" step="0.1" id="suprailiaca" value="" class="w-16 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded text-center py-1 font-bold text-sm text-amber-700 dark:text-amber-400 focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Abdominal</span><input type="number" step="0.1" id="abdominal" value="" class="w-16 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded text-center py-1 font-bold text-sm text-amber-700 dark:text-amber-400 focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Coxa Medial</span><input type="number" step="0.1" id="coxa" value="" class="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 dark:border-slate-700 pb-1 col-span-2"><span class="text-xs font-semibold text-slate-600 dark:text-slate-400">Panturrilha Medial</span><input type="number" step="0.1" id="panturrilha_dobra" value="" class="w-16 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
                     </div>
                 </div>
 
-                <!-- Diâmetros Ósseos -->
-                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
-                    <h2 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-bone text-slate-500 bg-slate-50 p-2 rounded-lg"></i> Diâmetros Ósseos (cm)
+                <!-- Parecer Clínico (Formulário) -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 print-hide">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-notes-medical text-indigo-500 bg-indigo-50 p-2 rounded-lg"></i> Parecer Clínico
                     </h2>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Biestilóide Punho</label><input type="number" step="0.1" id="punho" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-slate-500"></div>
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Biepicôndilo Fêmur</label><input type="number" step="0.1" id="femur" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-slate-500"></div>
-                    </div>
+                    <textarea id="parecer_input" rows="4" placeholder="Digite as observações, prescrições ou orientações para o paciente..." class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-y"></textarea>
                 </div>
 
                 <!-- Assinatura (aparece no PDF) -->
-                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
-                    <h2 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700">
+                    <h2 class="text-base font-bold text-slate-800 dark:text-slate-100 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-signature text-indigo-500 bg-indigo-50 p-2 rounded-lg"></i> Profissional Responsável
                     </h2>
                     <div class="space-y-3">
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Avaliador</label><input type="text" id="avaliador" value="" placeholder="Nome do Personal / Ed. Físico" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"></div>
-                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">CREF</label><input type="text" id="cref" value="" placeholder="000000-G/UF" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Nome do Avaliador</label><input type="text" id="avaliador" value="" placeholder="Nome do Personal / Ed. Físico" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">CREF</label><input type="text" id="cref" value="" placeholder="000000-G/UF" class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"></div>
                     </div>
                 </div>
 
@@ -343,88 +421,88 @@
                 <!-- KPIs Grid 3x2 -->
                 <div class="kpi-grid grid grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- KPI 1: % Gordura -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-amber-200 transition-colors print-border">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 flex flex-col justify-between relative overflow-hidden group hover:border-amber-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full opacity-60 dark:opacity-5 group-hover:scale-125 transition-transform duration-500"></div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-fire text-amber-400 mr-1"></i>Percentual de Gordura (BF)</p>
                         <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Body Fat — Proporção de gordura em relação ao peso total do corpo</p>
-                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-bf">0.0</span><span class="text-lg font-bold text-slate-400">%</span></div>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tighter" id="res-bf">0.0</span><span class="text-lg font-bold text-slate-400">%</span></div>
                         <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-bf">--</div>
                         <!-- Termômetro BF -->
                         <div class="mt-3 relative w-full pt-1.5 z-10">
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div class="w-full h-full bg-gradient-to-r from-blue-400 via-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
                             </div>
                             <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-bf" style="left: 0%"></div>
                         </div>
                     </div>
                     <!-- KPI 2: Massa Gorda -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-red-200 transition-colors print-border">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-red-50 to-rose-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 flex flex-col justify-between relative overflow-hidden group hover:border-red-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-red-50 to-rose-50 rounded-full opacity-60 dark:opacity-5 group-hover:scale-125 transition-transform duration-500"></div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-weight-scale text-red-400 mr-1"></i>Massa Gorda</p>
                         <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Peso total de tecido adiposo (gordura) do corpo em quilos</p>
-                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-mg">0.0</span><span class="text-lg font-bold text-slate-400">kg</span></div>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tighter" id="res-mg">0.0</span><span class="text-lg font-bold text-slate-400">kg</span></div>
                         <!-- Termômetro MG -->
                         <div class="mt-3 relative w-full pt-1.5 z-10">
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div class="w-full h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
                             </div>
                             <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-mg" style="left: 0%"></div>
                         </div>
                     </div>
                     <!-- KPI 3: Massa Magra -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-200 transition-colors print-border">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full opacity-60 dark:opacity-5 group-hover:scale-125 transition-transform duration-500"></div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-dumbbell text-emerald-400 mr-1"></i>Massa Magra</p>
                         <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Peso de músculos, ossos, órgãos e água — tudo que não é gordura</p>
-                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-mm">0.0</span><span class="text-lg font-bold text-slate-400">kg</span></div>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tighter" id="res-mm">0.0</span><span class="text-lg font-bold text-slate-400">kg</span></div>
                         <!-- Termômetro MM -->
                         <div class="mt-3 relative w-full pt-1.5 z-10">
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div class="w-full h-full bg-gradient-to-r from-red-400 via-amber-400 to-emerald-500 opacity-80"></div>
                             </div>
                             <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-mm" style="left: 0%"></div>
                         </div>
                     </div>
                     <!-- KPI 4: RCQ -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-blue-200 transition-colors print-border">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 flex flex-col justify-between relative overflow-hidden group hover:border-blue-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full opacity-60 dark:opacity-5 group-hover:scale-125 transition-transform duration-500"></div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-heart-circle-exclamation text-blue-400 mr-1"></i>RCQ — Relação Cintura-Quadril</p>
                         <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Indica risco cardiovascular pela distribuição de gordura no tronco</p>
-                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-rcq">0.00</span></div>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tighter" id="res-rcq">0.00</span></div>
                         <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-rcq">--</div>
                         <!-- Termômetro RCQ -->
                         <div class="mt-3 relative w-full pt-1.5 z-10">
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div class="w-full h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
                             </div>
                             <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-rcq" style="left: 0%"></div>
                         </div>
                     </div>
                     <!-- KPI 5: IMC -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group transition-colors print-border" id="card-imc">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 flex flex-col justify-between relative overflow-hidden group transition-colors print-border" id="card-imc">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-full opacity-60 dark:opacity-5 group-hover:scale-125 transition-transform duration-500"></div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-scale-unbalanced text-purple-400 mr-1"></i>IMC — Índice de Massa Corporal</p>
                         <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Relação peso/altura² (OMS) — não diferencia gordura de músculo</p>
-                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-imc">0.0</span><span class="text-sm font-bold text-slate-400">kg/m²</span></div>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tighter" id="res-imc">0.0</span><span class="text-sm font-bold text-slate-400">kg/m²</span></div>
                         <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-imc">--</div>
                         <!-- Termômetro IMC -->
                         <div class="mt-3 relative w-full pt-1.5 z-10">
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div class="w-full h-full bg-gradient-to-r from-blue-400 via-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
                             </div>
                             <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-imc" style="left: 0%"></div>
                         </div>
                     </div>
                     <!-- KPI 6: IAC -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-pink-200 transition-colors print-border">
-                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-pink-50 to-rose-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 flex flex-col justify-between relative overflow-hidden group hover:border-pink-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-pink-50 to-rose-50 rounded-full opacity-60 dark:opacity-5 group-hover:scale-125 transition-transform duration-500"></div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-percent text-pink-400 mr-1"></i>IAC — Índ. Adiposidade Corporal</p>
                         <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Estima gordura pelo quadril e altura — alternativa ao IMC</p>
-                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-iac">0.0</span><span class="text-lg font-bold text-slate-400">%</span></div>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tighter" id="res-iac">0.0</span><span class="text-lg font-bold text-slate-400">%</span></div>
                         <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-iac">--</div>
                         <!-- Termômetro IAC -->
                         <div class="mt-3 relative w-full pt-1.5 z-10">
-                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                                 <div class="w-full h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
                             </div>
                             <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-iac" style="left: 0%"></div>
@@ -442,7 +520,7 @@
                 </div>
 
                 <!-- Card Análise Clínica (wide) -->
-                <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(15,23,42,0.2)] p-6 text-white print-border">
+                <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(15,23,42,0.2)] p-6 text-white print-border break-inside-avoid">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-stethoscope text-emerald-400 text-lg"></i></div>
                         <div>
@@ -451,56 +529,102 @@
                         </div>
                     </div>
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <div class="bg-white dark:bg-slate-800/5 rounded-xl p-3 border border-white/10">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Peso Ideal (meta 15%)</p>
                             <p class="text-2xl font-extrabold mt-1 text-emerald-400" id="res-peso-ideal">--</p>
-                            <p class="text-[10px] text-slate-500 mt-1" id="res-peso-ideal-nota"></p>
-                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Peso estimado para atingir o percentual de gordura ideal, preservando a massa magra atual.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1" id="res-peso-ideal-nota"></p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400/70 mt-1 leading-tight">Peso estimado para atingir o percentual de gordura ideal, preservando a massa magra atual.</p>
                         </div>
-                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <div class="bg-white dark:bg-slate-800/5 rounded-xl p-3 border border-white/10">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Gordura a Perder</p>
                             <p class="text-2xl font-extrabold mt-1 text-amber-400" id="res-gordura-perder">--</p>
-                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Quantidade de gordura que precisa ser eliminada para alcançar a meta de composição corporal.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400/70 mt-1 leading-tight">Quantidade de gordura que precisa ser eliminada para alcançar a meta de composição corporal.</p>
                         </div>
-                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <div class="bg-white dark:bg-slate-800/5 rounded-xl p-3 border border-white/10">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Índ. Conicidade (IC)</p>
                             <p class="text-2xl font-extrabold mt-1 text-blue-400" id="res-ic">--</p>
                             <div class="mt-1 text-[11px] font-bold px-2 py-0.5 rounded inline-block w-max" id="class-ic">--</div>
-                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Avalia o formato do tronco (cilíndrico vs cônico). Valores acima de 1.25 indicam maior acúmulo central e risco cardiovascular.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400/70 mt-1 leading-tight">Avalia o formato do tronco (cilíndrico vs cônico). Valores acima de 1.25 indicam maior acúmulo central e risco cardiovascular.</p>
                         </div>
-                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <div class="bg-white dark:bg-slate-800/5 rounded-xl p-3 border border-white/10">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Expansib. Torácica</p>
                             <p class="text-2xl font-extrabold mt-1 text-purple-400" id="res-exp-torax">--</p>
-                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Diferença entre tórax inspirado e relaxado. Avalia a capacidade respiratória e flexibilidade da caixa torácica.</p>
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400/70 mt-1 leading-tight">Diferença entre tórax inspirado e relaxado. Avalia a capacidade respiratória e flexibilidade da caixa torácica.</p>
                         </div>
                     </div>
                 </div>
 
+                <!-- Inteligência Fisiológica -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 print-page-break">
+                    <!-- Idade Biológica -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 dark:border-slate-700 relative overflow-hidden group print-border break-inside-avoid">
+                        <div class="absolute -right-4 -top-4 w-20 h-20 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-full opacity-60 dark:opacity-5 group-hover:scale-125 transition-transform duration-500"></div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1 relative z-10"><i class="fa-solid fa-dna text-indigo-500 mr-2"></i>Idade Biológica</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 relative z-10">Idade aparente do seu metabolismo baseada na composição corporal.</p>
+                        <div class="flex items-end gap-3 relative z-10">
+                            <span class="text-5xl font-extrabold text-indigo-600 dark:text-indigo-400 leading-none tracking-tighter" id="res-bioage">--</span>
+                            <span class="text-lg font-bold text-slate-400 mb-1">anos</span>
+                        </div>
+                        <p class="mt-3 text-[11px] font-bold px-3 py-1.5 rounded-lg inline-block w-max shadow-sm relative z-10 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300" id="class-bioage">--</p>
+                    </div>
+
+                    <!-- Metabolismo e Gasto Calórico -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 dark:border-slate-700 relative print-border break-inside-avoid">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1"><i class="fa-solid fa-fire-flame-curved text-orange-500 mr-2"></i>Metabolismo e Energia</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Estimativa oficial de queima calórica diária (Mifflin-St Jeor).</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-2">
+                                <div>
+                                    <span class="block text-sm font-bold text-slate-700 dark:text-slate-200">Taxa Metabólica Basal</span>
+                                    <span class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">Calorias gastas em repouso</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xl font-extrabold text-slate-900 dark:text-white" id="res-tmb">--</span>
+                                    <span class="text-xs font-bold text-slate-400">kcal/dia</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <span class="block text-sm font-bold text-orange-600 dark:text-orange-400">Gasto Calórico Total (TDEE)</span>
+                                    <span class="block text-[10px] text-orange-400/80 uppercase font-bold tracking-wider">TMB + Atividade Física</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-2xl font-extrabold text-orange-500" id="res-tdee">--</span>
+                                    <span class="text-xs font-bold text-orange-400">kcal/dia</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+
                 <!-- Card Dados Técnicos -->
-                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 print-border">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 print-border">
                     <div class="flex items-center gap-3 mb-4">
-                        <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-flask text-slate-500 text-sm"></i></div>
+                        <div class="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><i class="fa-solid fa-flask text-slate-500 dark:text-slate-400 text-sm"></i></div>
                         <div>
-                            <h3 class="text-base font-bold text-slate-900">Dados Técnicos do Protocolo</h3>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white">Dados Técnicos do Protocolo</h3>
                             <p class="text-[10px] text-slate-400 uppercase font-bold">Jackson, Pollock & Ward (1980) — Equação de Siri</p>
                         </div>
                     </div>
                     <div class="grid grid-cols-3 gap-3">
-                        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                        <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 text-center border border-slate-100 dark:border-slate-700">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Σ 7 Dobras Cutâneas</p>
-                            <p class="text-xl font-extrabold text-slate-900 font-mono mt-1" id="res-sum7">--</p>
+                            <p class="text-xl font-extrabold text-slate-900 dark:text-white font-mono mt-1" id="res-sum7">--</p>
                             <p class="text-[10px] text-slate-400">mm</p>
                             <p class="text-[10px] text-slate-400 mt-1 leading-tight">Soma das 7 dobras do protocolo Jackson & Pollock</p>
                         </div>
-                        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                        <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 text-center border border-slate-100 dark:border-slate-700">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Densidade Corporal (DC)</p>
-                            <p class="text-xl font-extrabold text-slate-900 font-mono mt-1" id="res-dc">--</p>
+                            <p class="text-xl font-extrabold text-slate-900 dark:text-white font-mono mt-1" id="res-dc">--</p>
                             <p class="text-[10px] text-slate-400">g/cm³</p>
                             <p class="text-[10px] text-slate-400 mt-1 leading-tight">Valor intermediário usado para calcular o %BF via equação de Siri</p>
                         </div>
-                        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                        <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 text-center border border-slate-100 dark:border-slate-700">
                             <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">% Massa Magra</p>
-                            <p class="text-xl font-extrabold text-slate-900 font-mono mt-1" id="res-perc-mm">--</p>
+                            <p class="text-xl font-extrabold text-slate-900 dark:text-white font-mono mt-1" id="res-perc-mm">--</p>
                             <p class="text-[10px] text-slate-400">do peso total</p>
                             <p class="text-[10px] text-slate-400 mt-1 leading-tight">Proporção de tecido livre de gordura no corpo</p>
                         </div>
@@ -511,15 +635,15 @@
                 <div class="lower-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
                     
                     <!-- Mapa Corporal Interativo -->
-                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 relative print-border">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 dark:border-slate-700 relative print-border">
                         <div class="text-center w-full mb-3">
-                            <h3 class="text-lg font-bold text-slate-900 mb-1">Mapa de Gordura Localizada</h3>
-                            <p class="text-xs font-medium text-slate-500">Passe o mouse sobre as regiões para detalhes</p>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">Mapa de Gordura Localizada</h3>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Passe o mouse sobre as regiões para detalhes</p>
                         </div>
-                        <div class="flex flex-wrap gap-3 bg-slate-50 px-4 py-2 rounded-lg border border-slate-100 shadow-sm mb-4 justify-center mx-auto w-max">
-                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><span class="w-3 h-3 rounded bg-emerald-500"></span>Normal</div>
-                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><span class="w-3 h-3 rounded bg-amber-500"></span>Atenção</div>
-                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><span class="w-3 h-3 rounded bg-orange-500 "></span>Alerta</div>
+                        <div class="flex flex-wrap gap-3 bg-slate-50 dark:bg-slate-900/50 px-4 py-2 rounded-lg border border-slate-100 dark:border-slate-700 shadow-sm mb-4 justify-center mx-auto w-max">
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400"><span class="w-3 h-3 rounded bg-emerald-500"></span>Normal</div>
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400"><span class="w-3 h-3 rounded bg-amber-500"></span>Atenção</div>
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600 dark:text-slate-400"><span class="w-3 h-3 rounded bg-orange-500 "></span>Alerta</div>
                         </div>
 
                         <!-- Wrapper com espaço para callouts -->
@@ -543,39 +667,39 @@
                     <!-- Gráficos e Distribuição -->
                     <div class="space-y-6 flex flex-col">
                         <!-- Donut Chart -->
-                        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 flex flex-col items-center justify-center flex-grow relative print-border">
-                            <h3 class="text-base font-bold text-slate-900 absolute top-5 left-5">Composição Corporal</h3>
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center flex-grow relative print-border">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white absolute top-5 left-5">Composição Corporal</h3>
                             <div class="w-full max-w-[200px] aspect-square relative mt-8">
                                 <canvas id="chart-mass"></canvas>
                                 <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
                                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Peso Total</span>
-                                    <span class="text-2xl font-extrabold text-slate-900 leading-none" id="chart-center-val">--</span>
-                                    <span class="text-[10px] font-bold text-slate-500">kg</span>
+                                    <span class="text-2xl font-extrabold text-slate-900 dark:text-white leading-none" id="chart-center-val">--</span>
+                                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">kg</span>
                                 </div>
                             </div>
                             <!-- Mini legenda -->
                             <div class="flex gap-5 mt-4">
-                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600"><span class="w-3 h-3 rounded-sm bg-red-400"></span> Gorda: <span id="chart-leg-mg">--</span> kg</div>
-                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span> Magra: <span id="chart-leg-mm">--</span> kg</div>
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400"><span class="w-3 h-3 rounded-sm bg-red-400"></span> Gorda: <span id="chart-leg-mg">--</span> kg</div>
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span> Magra: <span id="chart-leg-mm">--</span> kg</div>
                             </div>
                         </div>
 
                         <!-- Distribuição Central vs Periférica -->
-                        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 print-border">
-                            <h3 class="text-base font-bold text-slate-900 mb-4">Distribuição de Gordura</h3>
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 dark:border-slate-700 print-border">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-4">Distribuição de Gordura</h3>
                             <div class="mb-4">
                                 <div class="flex justify-between items-end mb-1.5">
-                                    <div><span class="block text-sm font-bold text-slate-700">Central (Tronco)</span><span class="block text-[10px] font-bold text-slate-400 uppercase">Risco Metabólico</span></div>
+                                    <div><span class="block text-sm font-bold text-slate-700 dark:text-slate-200">Central (Tronco)</span><span class="block text-[10px] font-bold text-slate-400 uppercase">Risco Metabólico</span></div>
                                     <span class="text-lg font-extrabold text-amber-500" id="dist-central">0%</span>
                                 </div>
-                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner"><div id="bar-central" class="bg-gradient-to-r from-amber-400 to-orange-500 h-3 rounded-full transition-all duration-1000 ease-out w-0"></div></div>
+                                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden shadow-inner"><div id="bar-central" class="bg-gradient-to-r from-amber-400 to-orange-500 h-3 rounded-full transition-all duration-1000 ease-out w-0"></div></div>
                             </div>
                             <div>
                                 <div class="flex justify-between items-end mb-1.5">
-                                    <div><span class="block text-sm font-bold text-slate-700">Periférica (Membros)</span><span class="block text-[10px] font-bold text-slate-400 uppercase">Subcutânea</span></div>
+                                    <div><span class="block text-sm font-bold text-slate-700 dark:text-slate-200">Periférica (Membros)</span><span class="block text-[10px] font-bold text-slate-400 uppercase">Subcutânea</span></div>
                                     <span class="text-lg font-extrabold text-blue-500" id="dist-periferica">0%</span>
                                 </div>
-                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner"><div id="bar-periferica" class="bg-gradient-to-r from-blue-400 to-indigo-500 h-3 rounded-full transition-all duration-1000 ease-out w-0"></div></div>
+                                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden shadow-inner"><div id="bar-periferica" class="bg-gradient-to-r from-blue-400 to-indigo-500 h-3 rounded-full transition-all duration-1000 ease-out w-0"></div></div>
                             </div>
                         </div>
                     </div>
@@ -587,21 +711,21 @@
         <!-- ====== SEÇÕES EXCLUSIVAS PARA PDF (Print-Only) ====== -->
         <!-- Tabela de Perímetros -->
         <div class="hidden print-show mt-6 print-page-break" style="display:none;">
-            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2 border-b pb-2 border-slate-200"><i class="fa-solid fa-ruler-combined text-blue-500 mr-1"></i> Tabela Completa de Perímetros (cm)</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2 border-b pb-2 border-slate-200 dark:border-slate-700"><i class="fa-solid fa-ruler-combined text-blue-500 mr-1"></i> Tabela Completa de Perímetros (cm)</h3>
             <table class="print-table mb-4" id="print-perimetros-table"></table>
-            <h4 class="text-sm font-bold text-slate-700 mb-2 mt-4">Perímetros Bilaterais</h4>
+            <h4 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2 mt-4">Perímetros Bilaterais</h4>
             <table class="print-table" id="print-bilaterais-table"></table>
         </div>
 
         <!-- Tabela de Dobras -->
         <div class="hidden print-show mt-6" style="display:none;">
-            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2 border-b pb-2 border-slate-200"><i class="fa-solid fa-hand-pinch text-amber-500 mr-1"></i> Tabela Completa de Dobras Cutâneas (mm)</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2 border-b pb-2 border-slate-200 dark:border-slate-700"><i class="fa-solid fa-hand-pinch text-amber-500 mr-1"></i> Tabela Completa de Dobras Cutâneas (mm)</h3>
             <table class="print-table" id="print-dobras-table"></table>
         </div>
 
         <!-- Glossário de Índices e Siglas (Print Only) -->
         <div class="hidden print-show mt-6 print-page-break" style="display:none;">
-            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2 border-b pb-2 border-slate-200"><i class="fa-solid fa-book-open text-indigo-500 mr-1"></i> Glossário — O que cada índice significa</h3>
+            <h3 class="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2 border-b pb-2 border-slate-200 dark:border-slate-700"><i class="fa-solid fa-book-open text-indigo-500 mr-1"></i> Glossário — O que cada índice significa</h3>
             <table class="print-table">
                 <tr><th style="width:22%;">Sigla / Índice</th><th style="width:30%;">Nome Completo</th><th>O que é e para que serve</th></tr>
                 <tr><td><b>%BF</b></td><td>Body Fat (Percentual de Gordura)</td><td>Proporção de gordura em relação ao peso corporal total. É o principal indicador da composição corporal, calculado aqui pelo protocolo de Jackson, Pollock & Ward com 7 dobras cutâneas e convertido pela equação de Siri.</td></tr>
@@ -618,17 +742,27 @@
             </table>
         </div>
 
+        <!-- Parecer Clínico (Print Only) -->
+        <div id="print-parecer-container" class="hidden print-show mt-8 break-inside-avoid" style="display: none;">
+            <div class="bg-indigo-50/50 border border-indigo-100 rounded-2xl p-6">
+                <h3 class="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-notes-medical text-indigo-500"></i> Parecer Clínico & Recomendações
+                </h3>
+                <p id="print-parecer-text" class="text-xs text-slate-700 dark:text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
+            </div>
+        </div>
+
         <!-- Rodapé Profissional do PDF -->
         <div class="hidden print-show mt-10 pt-6 border-t-2 border-slate-300" style="display:none;">
             <div class="grid grid-cols-2 gap-8">
                 <div class="text-center">
                     <div class="border-b border-slate-400 mb-2 pb-8"></div>
-                    <p class="text-sm font-bold text-slate-700" id="print-avaliador">Profissional Avaliador</p>
-                    <p class="text-xs text-slate-500" id="print-cref"></p>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200" id="print-avaliador">Profissional Avaliador</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400" id="print-cref"></p>
                 </div>
                 <div class="text-center">
                     <div class="border-b border-slate-400 mb-2 pb-8"></div>
-                    <p class="text-sm font-bold text-slate-700" id="print-avaliado-assin">Avaliado</p>
+                    <p class="text-sm font-bold text-slate-700 dark:text-slate-200" id="print-avaliado-assin">Avaliado</p>
                 </div>
             </div>
             <p class="text-[9px] text-slate-400 text-center mt-6 leading-relaxed">Avaliação baseada em protocolos científicos validados pela literatura internacional. Os resultados são indicativos e devem ser interpretados por profissional habilitado.<br>Protocolo de Densidade Corporal: Jackson, Pollock & Ward (1980). Conversão: Equação de Siri. Software: BioMetrics Pro.</p>
@@ -772,6 +906,8 @@
         function processarAvaliacao() {
             // Coleta
             const nome=document.getElementById('nome').value, idade=V('idade'), peso=V('peso'), altura=V('altura');
+            const genero = document.getElementById('genero').value;
+            const atividade = parseFloat(document.getElementById('atividade').value) || 1.2;
             const cintura=V('cintura'), quadril=V('quadril');
             const toraxRel=V('torax_rel'), toraxInsp=V('torax_insp');
             const sub=V('subescapular'),tri=V('triceps'),pei=V('peitoral'),axi=V('axilar'),sup=V('suprailiaca'),abd=V('abdominal'),cox=V('coxa');
@@ -784,7 +920,7 @@
 
             const fatMass = peso*(bf/100);
             const leanMass = peso-fatMass;
-            const alturaM = altura/100;
+            const alturaM = altura > 3 ? altura/100 : (altura || 0); // Aceita altura tanto em CM (166) quanto em M (1.66)
             const imc = alturaM>0 ? peso/(alturaM*alturaM) : 0;
             const rcq = quadril>0 ? cintura/quadril : 0;
             const iac = (alturaM>0 && quadril>0) ? (quadril/(alturaM*Math.sqrt(alturaM)))-18 : 0;
@@ -811,6 +947,29 @@
             document.getElementById('therm-rcq').style.left = clamp(rcq, 0.7, 1.15) + '%';
             document.getElementById('therm-imc').style.left = clamp(imc, 15, 40) + '%';
             document.getElementById('therm-iac').style.left = clamp(iac, 10, 40) + '%';
+
+            // Inteligência Fisiológica: TMB e Idade Biológica
+            let tmb = 0;
+            if(genero === 'M') tmb = (10 * peso) + (6.25 * altura) - (5 * idade) + 5;
+            else tmb = (10 * peso) + (6.25 * altura) - (5 * idade) - 161;
+            const tdee = tmb * atividade;
+
+            let bioAge = idade;
+            if(idade > 0 && bf > 0) {
+                const idealBF = genero === 'M' ? 14 : 22;
+                bioAge = idade + ((bf - idealBF) * 0.4) + ((imc - 23) * 0.2);
+                if(bioAge < 18 && idade >= 18) bioAge = 18;
+            }
+            
+            document.getElementById('res-tmb').innerText = Math.round(tmb) || '--';
+            document.getElementById('res-tdee').innerText = Math.round(tdee) || '--';
+            document.getElementById('res-bioage').innerText = bioAge > 0 ? Math.round(bioAge) : '--';
+            let classBioAge = "Compatível";
+            if(bioAge > 0) {
+                if(bioAge < idade - 3) classBioAge = "Excelente / Rejuvenescido";
+                else if(bioAge > idade + 3) classBioAge = "Envelhecimento Acelerado";
+            }
+            document.getElementById('class-bioage').innerText = classBioAge;
 
             tag('class-bf', clsBF(bf));
             tag('class-rcq', clsRCQ(rcq));
@@ -886,7 +1045,16 @@
             document.getElementById('print-peso-altura').innerText = `${fmt(peso)} kg / ${altura} cm`;
             document.getElementById('res-imc-print').innerText = fmt(imc) + ' kg/m²';
             document.getElementById('print-avaliador').innerText = document.getElementById('avaliador').value || 'Profissional Avaliador';
-            document.getElementById('print-cref').innerText = document.getElementById('cref').value ? 'CREF ' + document.getElementById('cref').value : '';
+            document.getElementById('print-cref').innerText = document.getElementById('cref').value || 'CREF -';
+            
+            // Parecer Clínico
+            const parecer = document.getElementById('parecer_input').value;
+            if (parecer.trim() !== '') {
+                document.getElementById('print-parecer-text').innerText = parecer;
+                document.getElementById('print-parecer-container').style.display = 'block';
+            } else {
+                document.getElementById('print-parecer-container').style.display = 'none';
+            }
             document.getElementById('print-avaliado-assin').innerText = nome || 'Avaliado';
 
             // Tabela Perímetros (print)
@@ -933,9 +1101,45 @@
             initChart();
             setupBodyTooltips();
             document.getElementById('btn-calcular').addEventListener('click', processarAvaliacao);
+            
+            // Dark Mode Toggle
+            document.getElementById('dark-mode-toggle').addEventListener('change', function(e) {
+                if(e.target.checked) document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
+            });
+
+            // Remove Dark Mode before printing to ensure pristine PDF
+            window.addEventListener('beforeprint', () => {
+                document.documentElement.classList.remove('dark');
+            });
+            window.addEventListener('afterprint', () => {
+                if(document.getElementById('dark-mode-toggle').checked) {
+                    document.documentElement.classList.add('dark');
+                }
+            });
+
+            // Logo Upload
+            document.getElementById('logo-upload').addEventListener('change', function(e) {
+                if(e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.getElementById('custom-logo');
+                        img.src = e.target.result;
+                        img.classList.remove('hidden');
+                        document.getElementById('default-logo-text').classList.add('hidden');
+                    }
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
             processarAvaliacao();
         }
     </script>
 </body>
 </html>
+
+
+
+
+
 
