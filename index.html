@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação Física Avançada - BioMetrics Pro</title>
+    
+    <!-- Tailwind CSS (CDN Estável) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome para Ícones Modernos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Outfit + JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js para Gráficos Interativos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- ============================================================ -->
+    <!-- ESTILOS CUSTOMIZADOS (CSS INLINE)                            -->
+    <!-- ============================================================ -->
+    <style>
+        body { background-color: #f8fafc; }
+
+        /* ========== REGRAS @media print PARA PDF PREMIUM ========== */
+        @media print {
+            @page { size: A4; margin: 1.2cm 1.5cm; }
+            body { background-color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 11px; }
+            .print-hide { display: none !important; }
+            .print-show { display: block !important; }
+            .print-full { width: 100% !important; max-width: 100% !important; flex: 0 0 100% !important; display: block !important; }
+            .dashboard-container { display: block !important; }
+            .kpi-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 0.75rem !important; margin-bottom: 1rem !important; page-break-inside: avoid; }
+            .lower-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 1rem !important; page-break-inside: avoid; }
+            .shadow-xl, .shadow-md, .shadow-sm, [class*="shadow-["] { box-shadow: none !important; }
+            .print-text-dark { color: #0f172a !important; }
+            .print-border { border: 1px solid #e2e8f0 !important; }
+            .print-page-break { page-break-before: always; }
+            .body-tooltip { display: none !important; }
+            canvas { max-width: 200px !important; max-height: 200px !important; }
+        }
+
+        /* ========== SVG CORPO HUMANO (BUG FIX: alturas e gaps) ========== */
+        .human-body-wrapper {
+            position: relative;
+            width: 320px;
+            height: 520px;
+            margin: 0 auto;
+        }
+        .human-body {
+            width: 207px;
+            height: 500px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+        }
+        .human-body svg {
+            position: absolute;
+            left: 50%;
+            fill: #cbd5e1;
+            transition: fill 0.4s ease, filter 0.3s ease;
+            cursor: pointer;
+        }
+        /* Posições recalibradas — gaps eliminados */
+        .human-body svg.head      { margin-left: -28.5px;  top: 0px; }
+        .human-body svg.shoulder   { margin-left: -53.5px;  top: 75px; }
+        .human-body svg.arm        { margin-left: -78px;    top: 115px; }
+        .human-body svg.cheast     { margin-left: -43.5px;  top: 92px; }
+        .human-body svg.stomach    { margin-left: -37.5px;  top: 133px; }
+        .human-body svg.legs       { margin-left: -46.5px;  top: 208px; z-index: 10; }
+        .human-body svg.hands      { margin-left: -102.5px; top: 228px; }
+
+        /* Hover corrigido — sem deslocamento */
+        .human-body svg:hover {
+            filter: brightness(1.15) drop-shadow(0 0 8px rgba(0,0,0,0.15));
+            z-index: 20;
+        }
+        .human-body svg path {
+            transition: fill 0.4s ease;
+        }
+
+        /* Cores estáticas dos hotspots (sem animação — compatível com impressão) */
+        .alert-hotspot   { fill: #e85d3a !important; filter: drop-shadow(0 0 6px rgba(232,93,58,0.35)); }
+        .safe-hotspot    { fill: #10b981 !important; }
+        .warning-hotspot { fill: #f59e0b !important; }
+
+        /* Tooltip flutuante do corpo */
+        .body-tooltip {
+            position: fixed;
+            z-index: 9999;
+            background: #0f172a;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            max-width: 220px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .body-tooltip.visible { opacity: 1; }
+
+        /* Callout labels laterais */
+        .callout-label {
+            position: absolute;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            z-index: 30;
+            line-height: 1.3;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .callout-label::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 16px;
+            height: 1px;
+            background: #94a3b8;
+        }
+        .callout-label.left::before { right: -16px; }
+        .callout-label.right::before { left: -16px; }
+
+        .callout-safe    { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .callout-warning { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+        .callout-alert   { background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; }
+
+        /* ========== DIVERSOS ========== */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        input[type="number"] { -moz-appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* Tabelas do PDF */
+        .print-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .print-table th { background: #f1f5f9; color: #334155; font-weight: 700; text-transform: uppercase; font-size: 9px; letter-spacing: 0.05em; padding: 6px 10px; border: 1px solid #e2e8f0; text-align: left; }
+        .print-table td { padding: 5px 10px; border: 1px solid #e2e8f0; color: #1e293b; }
+        .print-table tr:nth-child(even) { background: #f8fafc; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Tooltip Global do Corpo (posição fixa, segue o mouse) -->
+    <div class="body-tooltip" id="body-tooltip"></div>
+
+    <!-- ========== HEADER NAVBAR ========== -->
+    <header class="bg-slate-900 text-white shadow-xl print-hide relative z-50">
+        <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-xl font-bold shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid fa-heart-pulse text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight leading-none">Bio<span class="text-emerald-400">Metrics</span> Pro</h1>
+                    <p class="text-xs text-slate-400 font-medium tracking-wider uppercase mt-1">Avaliação Antropométrica Avançada</p>
+                </div>
+            </div>
+            <button onclick="window.print()" class="bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 border border-white/10 backdrop-blur-sm shadow-sm group">
+                <i class="fa-solid fa-file-pdf text-red-400 group-hover:scale-110 transition-transform"></i>
+                Exportar Relatório PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- ========== MAIN WORKSPACE ========== -->
+    <main class="flex-grow max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- ===== CABEÇALHO DO RELATÓRIO (Print Only) ===== -->
+        <div class="hidden print-show mb-6 border-b-2 pb-4 border-slate-200" style="display:none;">
+            <div class="flex justify-between items-end">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-900 leading-tight">Bio<span style="color:#10b981;">Metrics</span> Pro</h1>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Relatório Oficial de Avaliação Física Antropométrica</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-500" id="print-date"></p>
+                    <p class="text-xs text-slate-400">Protocolo: Jackson, Pollock & Ward (1980) — 7 Dobras</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FICHA DO ALUNO (Print Only) ===== -->
+        <div class="hidden print-show mb-5 bg-slate-50 p-4 rounded-xl border border-slate-200" style="display:none;">
+            <div class="grid grid-cols-5 gap-3">
+                <div class="col-span-2">
+                    <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Avaliado</p>
+                    <p class="font-bold text-base print-text-dark mt-0.5" id="print-nome">--</p>
+                </div>
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Idade</p>
+                    <p class="font-bold text-base print-text-dark mt-0.5" id="print-idade">--</p>
+                </div>
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Peso / Altura</p>
+                    <p class="font-bold text-base print-text-dark mt-0.5" id="print-peso-altura">--</p>
+                </div>
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">IMC</p>
+                    <p class="font-bold text-base print-text-dark mt-0.5" id="res-imc-print">--</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 dashboard-container">
+            
+            <!-- ====== PAINEL ESQUERDO: COLETA DE DADOS ====== -->
+            <div class="lg:col-span-4 space-y-5 print-hide">
+                
+                <!-- Dados Básicos -->
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
+                    <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-id-card text-emerald-500 bg-emerald-50 p-2 rounded-lg"></i> Dados Básicos
+                    </h2>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Nome Completo</label>
+                            <input type="text" id="nome" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-slate-700 text-sm">
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Idade</label><input type="number" id="idade" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-center font-bold text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Peso (kg)</label><input type="number" step="0.1" id="peso" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-center font-bold text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                            <div><label class="block text-xs font-semibold text-slate-600 mb-1">Altura (cm)</label><input type="number" id="altura" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-2 text-center font-bold text-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perímetros -->
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
+                    <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-ruler-combined text-blue-500 bg-blue-50 p-2 rounded-lg"></i> Perímetros (cm)
+                    </h2>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Pescoço</label><input type="number" step="0.1" id="pescoco" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Ombro</label><input type="number" step="0.1" id="ombro" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tórax Relaxado</label><input type="number" step="0.1" id="torax_rel" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Tórax Inspirado</label><input type="number" step="0.1" id="torax_insp" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Cintura</label><input type="number" step="0.1" id="cintura" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 font-bold"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Abdome</label><input type="number" step="0.1" id="abdome_per" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="col-span-2"><label class="block text-xs font-semibold text-slate-600 mb-1">Quadril</label><input type="number" step="0.1" id="quadril" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 font-bold"></div>
+                    </div>
+                    <!-- Bilaterais -->
+                    <div class="grid grid-cols-3 gap-2 items-center text-xs border-t border-slate-100 pt-3">
+                        <div class="font-bold text-slate-400 uppercase tracking-wide">Membro</div>
+                        <div class="text-center font-bold text-slate-400 uppercase tracking-wide">Esq.</div>
+                        <div class="text-center font-bold text-slate-400 uppercase tracking-wide">Dir.</div>
+                        <div class="font-semibold text-slate-600">Braço Rel.</div>
+                        <div><input type="number" step="0.1" id="braco_rel_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="braco_rel_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600">Braço Cont.</div>
+                        <div><input type="number" step="0.1" id="braco_cont_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="braco_cont_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600">Antebraço</div>
+                        <div><input type="number" step="0.1" id="antebraco_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="antebraco_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600">Coxa</div>
+                        <div><input type="number" step="0.1" id="coxa_per_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="coxa_per_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div class="font-semibold text-slate-600">Panturrilha</div>
+                        <div><input type="number" step="0.1" id="panturrilha_e" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                        <div><input type="number" step="0.1" id="panturrilha_d" value="" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-center focus:ring-2 focus:ring-blue-500"></div>
+                    </div>
+                </div>
+
+                <!-- Dobras Cutâneas -->
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-hand-pinch text-amber-500 bg-amber-50 p-2 rounded-lg"></i> Dobras Cutâneas
+                        </h2>
+                        <span class="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded uppercase">(mm)</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-5 gap-y-2.5">
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Subescapular</span><input type="number" step="0.1" id="subescapular" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Tríceps</span><input type="number" step="0.1" id="triceps" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Bíceps</span><input type="number" step="0.1" id="biceps" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Peitoral/Tórax</span><input type="number" step="0.1" id="peitoral" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Axilar Média</span><input type="number" step="0.1" id="axilar" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Suprailíaca</span><input type="number" step="0.1" id="suprailiaca" value="" class="w-16 bg-amber-50 border border-amber-200 rounded text-center py-1 font-bold text-sm text-amber-700 focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Abdominal</span><input type="number" step="0.1" id="abdominal" value="" class="w-16 bg-amber-50 border border-amber-200 rounded text-center py-1 font-bold text-sm text-amber-700 focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1"><span class="text-xs font-semibold text-slate-600">Coxa Medial</span><input type="number" step="0.1" id="coxa" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                        <div class="flex justify-between items-center border-b border-slate-50 pb-1 col-span-2"><span class="text-xs font-semibold text-slate-600">Panturrilha Medial</span><input type="number" step="0.1" id="panturrilha_dobra" value="" class="w-16 bg-slate-50 border border-slate-200 rounded text-center py-1 font-bold text-sm focus:ring-2 focus:ring-amber-500"></div>
+                    </div>
+                </div>
+
+                <!-- Diâmetros Ósseos -->
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
+                    <h2 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-bone text-slate-500 bg-slate-50 p-2 rounded-lg"></i> Diâmetros Ósseos (cm)
+                    </h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Biestilóide Punho</label><input type="number" step="0.1" id="punho" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-slate-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Biepicôndilo Fêmur</label><input type="number" step="0.1" id="femur" value="" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-slate-500"></div>
+                    </div>
+                </div>
+
+                <!-- Assinatura (aparece no PDF) -->
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100">
+                    <h2 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-signature text-indigo-500 bg-indigo-50 p-2 rounded-lg"></i> Profissional Responsável
+                    </h2>
+                    <div class="space-y-3">
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Avaliador</label><input type="text" id="avaliador" value="" placeholder="Nome do Personal / Ed. Físico" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"></div>
+                        <div><label class="block text-xs font-semibold text-slate-600 mb-1">CREF</label><input type="text" id="cref" value="" placeholder="000000-G/UF" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"></div>
+                    </div>
+                </div>
+
+                <!-- Botão de Ação -->
+                <button id="btn-calcular" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-[0_8px_30px_rgb(15,23,42,0.3)] transition-all transform hover:-translate-y-1 flex justify-center items-center gap-3 text-lg group">
+                    <i class="fa-solid fa-microchip text-emerald-400 group-hover:rotate-12 transition-transform"></i>
+                    Processar Avaliação Completa
+                </button>
+            </div>
+
+            <!-- ====== PAINEL DIREITO: DASHBOARD INTERATIVO ====== -->
+            <div class="lg:col-span-8 print-full space-y-6">
+                
+                <!-- KPIs Grid 3x2 -->
+                <div class="kpi-grid grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- KPI 1: % Gordura -->
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-amber-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-amber-50 to-orange-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-fire text-amber-400 mr-1"></i>Percentual de Gordura (BF)</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Body Fat — Proporção de gordura em relação ao peso total do corpo</p>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-bf">0.0</span><span class="text-lg font-bold text-slate-400">%</span></div>
+                        <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-bf">--</div>
+                        <!-- Termômetro BF -->
+                        <div class="mt-3 relative w-full pt-1.5 z-10">
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-full h-full bg-gradient-to-r from-blue-400 via-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
+                            </div>
+                            <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-bf" style="left: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- KPI 2: Massa Gorda -->
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-red-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-red-50 to-rose-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-weight-scale text-red-400 mr-1"></i>Massa Gorda</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Peso total de tecido adiposo (gordura) do corpo em quilos</p>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-mg">0.0</span><span class="text-lg font-bold text-slate-400">kg</span></div>
+                        <!-- Termômetro MG -->
+                        <div class="mt-3 relative w-full pt-1.5 z-10">
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-full h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
+                            </div>
+                            <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-mg" style="left: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- KPI 3: Massa Magra -->
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-dumbbell text-emerald-400 mr-1"></i>Massa Magra</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Peso de músculos, ossos, órgãos e água — tudo que não é gordura</p>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-mm">0.0</span><span class="text-lg font-bold text-slate-400">kg</span></div>
+                        <!-- Termômetro MM -->
+                        <div class="mt-3 relative w-full pt-1.5 z-10">
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-full h-full bg-gradient-to-r from-red-400 via-amber-400 to-emerald-500 opacity-80"></div>
+                            </div>
+                            <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-mm" style="left: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- KPI 4: RCQ -->
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-blue-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-heart-circle-exclamation text-blue-400 mr-1"></i>RCQ — Relação Cintura-Quadril</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Indica risco cardiovascular pela distribuição de gordura no tronco</p>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-rcq">0.00</span></div>
+                        <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-rcq">--</div>
+                        <!-- Termômetro RCQ -->
+                        <div class="mt-3 relative w-full pt-1.5 z-10">
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-full h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
+                            </div>
+                            <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-rcq" style="left: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- KPI 5: IMC -->
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group transition-colors print-border" id="card-imc">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-purple-50 to-fuchsia-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-scale-unbalanced text-purple-400 mr-1"></i>IMC — Índice de Massa Corporal</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Relação peso/altura² (OMS) — não diferencia gordura de músculo</p>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-imc">0.0</span><span class="text-sm font-bold text-slate-400">kg/m²</span></div>
+                        <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-imc">--</div>
+                        <!-- Termômetro IMC -->
+                        <div class="mt-3 relative w-full pt-1.5 z-10">
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-full h-full bg-gradient-to-r from-blue-400 via-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
+                            </div>
+                            <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-imc" style="left: 0%"></div>
+                        </div>
+                    </div>
+                    <!-- KPI 6: IAC -->
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-pink-200 transition-colors print-border">
+                        <div class="absolute -right-4 -top-4 w-16 h-16 bg-gradient-to-br from-pink-50 to-rose-50 rounded-full opacity-60 group-hover:scale-125 transition-transform duration-500"></div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider relative z-10"><i class="fa-solid fa-percent text-pink-400 mr-1"></i>IAC — Índ. Adiposidade Corporal</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 leading-tight relative z-10">Estima gordura pelo quadril e altura — alternativa ao IMC</p>
+                        <div class="mt-2 flex items-baseline gap-1 relative z-10"><span class="text-3xl font-extrabold text-slate-900 tracking-tighter" id="res-iac">0.0</span><span class="text-lg font-bold text-slate-400">%</span></div>
+                        <div class="mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10" id="class-iac">--</div>
+                        <!-- Termômetro IAC -->
+                        <div class="mt-3 relative w-full pt-1.5 z-10">
+                            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div class="w-full h-full bg-gradient-to-r from-emerald-400 via-amber-400 to-red-500 opacity-80"></div>
+                            </div>
+                            <div class="absolute top-0 -ml-1 w-2 h-4 bg-slate-800 rounded-[2px] shadow-sm border border-white transition-all duration-700" id="therm-iac" style="left: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NOTA IMC INTELIGENTE (aparece condicionalmente) -->
+                <div id="imc-nota" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-4 flex gap-3 items-start transition-all">
+                    <i class="fa-solid fa-circle-info text-blue-500 text-lg mt-0.5 flex-shrink-0"></i>
+                    <div>
+                        <p class="text-sm font-bold text-blue-800 mb-1">Análise Contextual do IMC</p>
+                        <p class="text-xs text-blue-700 leading-relaxed" id="imc-nota-text"></p>
+                    </div>
+                </div>
+
+                <!-- Card Análise Clínica (wide) -->
+                <div class="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl shadow-[0_8px_30px_rgb(15,23,42,0.2)] p-6 text-white print-border">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center"><i class="fa-solid fa-stethoscope text-emerald-400 text-lg"></i></div>
+                        <div>
+                            <h3 class="text-lg font-bold">Análise Clínica</h3>
+                            <p class="text-xs text-slate-400">Indicadores derivados e metas calculadas</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Peso Ideal (meta 15%)</p>
+                            <p class="text-2xl font-extrabold mt-1 text-emerald-400" id="res-peso-ideal">--</p>
+                            <p class="text-[10px] text-slate-500 mt-1" id="res-peso-ideal-nota"></p>
+                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Peso estimado para atingir o percentual de gordura ideal, preservando a massa magra atual.</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Gordura a Perder</p>
+                            <p class="text-2xl font-extrabold mt-1 text-amber-400" id="res-gordura-perder">--</p>
+                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Quantidade de gordura que precisa ser eliminada para alcançar a meta de composição corporal.</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Índ. Conicidade (IC)</p>
+                            <p class="text-2xl font-extrabold mt-1 text-blue-400" id="res-ic">--</p>
+                            <div class="mt-1 text-[11px] font-bold px-2 py-0.5 rounded inline-block w-max" id="class-ic">--</div>
+                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Avalia o formato do tronco (cilíndrico vs cônico). Valores acima de 1.25 indicam maior acúmulo central e risco cardiovascular.</p>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-3 border border-white/10">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Expansib. Torácica</p>
+                            <p class="text-2xl font-extrabold mt-1 text-purple-400" id="res-exp-torax">--</p>
+                            <p class="text-[10px] text-slate-500/70 mt-1 leading-tight">Diferença entre tórax inspirado e relaxado. Avalia a capacidade respiratória e flexibilidade da caixa torácica.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Dados Técnicos -->
+                <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 print-border">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center"><i class="fa-solid fa-flask text-slate-500 text-sm"></i></div>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-900">Dados Técnicos do Protocolo</h3>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Jackson, Pollock & Ward (1980) — Equação de Siri</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Σ 7 Dobras Cutâneas</p>
+                            <p class="text-xl font-extrabold text-slate-900 font-mono mt-1" id="res-sum7">--</p>
+                            <p class="text-[10px] text-slate-400">mm</p>
+                            <p class="text-[10px] text-slate-400 mt-1 leading-tight">Soma das 7 dobras do protocolo Jackson & Pollock</p>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Densidade Corporal (DC)</p>
+                            <p class="text-xl font-extrabold text-slate-900 font-mono mt-1" id="res-dc">--</p>
+                            <p class="text-[10px] text-slate-400">g/cm³</p>
+                            <p class="text-[10px] text-slate-400 mt-1 leading-tight">Valor intermediário usado para calcular o %BF via equação de Siri</p>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">% Massa Magra</p>
+                            <p class="text-xl font-extrabold text-slate-900 font-mono mt-1" id="res-perc-mm">--</p>
+                            <p class="text-[10px] text-slate-400">do peso total</p>
+                            <p class="text-[10px] text-slate-400 mt-1 leading-tight">Proporção de tecido livre de gordura no corpo</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mapeamento + Gráfico -->
+                <div class="lower-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Mapa Corporal Interativo -->
+                    <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 relative print-border">
+                        <div class="text-center w-full mb-3">
+                            <h3 class="text-lg font-bold text-slate-900 mb-1">Mapa de Gordura Localizada</h3>
+                            <p class="text-xs font-medium text-slate-500">Passe o mouse sobre as regiões para detalhes</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3 bg-slate-50 px-4 py-2 rounded-lg border border-slate-100 shadow-sm mb-4 justify-center mx-auto w-max">
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><span class="w-3 h-3 rounded bg-emerald-500"></span>Normal</div>
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><span class="w-3 h-3 rounded bg-amber-500"></span>Atenção</div>
+                            <div class="flex items-center gap-1.5 text-[10px] font-bold text-slate-600"><span class="w-3 h-3 rounded bg-orange-500 "></span>Alerta</div>
+                        </div>
+
+                        <!-- Wrapper com espaço para callouts -->
+                        <div class="human-body-wrapper" id="body-wrapper">
+                            <!-- CALLOUT LABELS (injetados via JS) -->
+                            <div id="callouts-container"></div>
+
+                            <!-- SVGs do Corpo -->
+                            <div class="human-body" id="body-map">
+                                <svg id="part-head" data-position="head" data-label="Cabeça" class="head" xmlns="http://www.w3.org/2000/svg" width="56.594" height="95.031" viewBox="0 0 56.594 95.031"><path d="M15.92 68.5l8.8 12.546 3.97 13.984-9.254-7.38-4.622-15.848zm27.1 0l-8.8 12.546-3.976 13.988 9.254-7.38 4.622-15.848zm6.11-27.775l.108-11.775-21.16-14.742L8.123 26.133 8.09 40.19l-3.24.215 1.462 9.732 5.208 1.81 2.36 11.63 9.72 11.018 10.856-.324 9.56-10.37 1.918-11.952 5.207-1.81 1.342-9.517zm-43.085-1.84l-.257-13.82L28.226 11.9l23.618 15.755-.216 10.37 4.976-17.085L42.556 2.376 25.49 0 10.803 3.673.002 24.415z"/></svg>
+                                <svg id="part-shoulder" data-position="shoulder" data-label="Ombros / Subescapular" class="shoulder" xmlns="http://www.w3.org/2000/svg" width="109.532" height="46.594" viewBox="0 0 109.532 46.594"><path d="M38.244-.004l1.98 9.232-11.653 2.857-7.474-2.637zm33.032 0l-1.98 9.232 11.653 2.857 7.474-2.637zm21.238 10.54l4.044-2.187 12.656 14 .07 5.33S92.76 10.66 92.515 10.535zm-1.285.58c-.008.28 17.762 18.922 17.762 18.922l.537 16.557-6.157-10.55L91.5 30.988 83.148 15.6zm-74.224-.58L12.962 8.35l-12.656 14-.062 5.325s16.52-17.015 16.764-17.14zm1.285.58C18.3 11.396.528 30.038.528 30.038L-.01 46.595l6.157-10.55 11.87-5.056L26.374 15.6z"/></svg>
+                                <svg id="part-arm" data-position="arm" data-label="Braços / Tríceps" class="arm" xmlns="http://www.w3.org/2000/svg" width="156.344" height="119.25" viewBox="0 0 156.344 119.25"><path d="M21.12 56.5a1.678 1.678 0 0 1-.427.33l.935 8.224 12.977-13.89 1.2-8.958A168.2 168.2 0 0 0 21.12 56.5zm1.387 12.522l-18.07 48.91 5.757 1.333 19.125-39.44 3.518-22.047zm-5.278-18.96l2.638 18.74-17.2 46.023L.01 113.05l6.644-35.518zm118.015 6.44a1.678 1.678 0 0 0 .426.33l-.934 8.222-12.977-13.89-1.2-8.958A168.2 168.2 0 0 1 135.24 56.5zm-1.39 12.52l18.073 48.91-5.758 1.333-19.132-39.44-3.52-22.05zm5.28-18.96l-2.64 18.74 17.2 46.023 2.658-1.775-6.643-35.518zm-103.1-12.323a1.78 1.78 0 0 1 .407-.24l3.666-27.345L33.07.015l-7.258 10.58-6.16 37.04.566 4.973a151.447 151.447 0 0 1 15.808-14.87zm84.3 0a1.824 1.824 0 0 0-.407-.24l-3.666-27.345L123.3.015l7.258 10.58 6.16 37.04-.566 4.973a151.447 151.447 0 0 0-15.822-14.87zM22.288 8.832l-3.3 35.276-2.2-26.238zm111.79 0l3.3 35.276 2.2-26.238z"/></svg>
+                                <svg id="part-cheast" data-position="cheast" data-label="Peitoral / Tórax" class="cheast" xmlns="http://www.w3.org/2000/svg" width="86.594" height="45.063" viewBox="0 0 86.594 45.063"><path d="M19.32 0l-9.225 16.488-10.1 5.056 6.15 4.836 4.832 14.07 11.2 4.616 17.85-8.828-4.452-34.7zm47.934 0l9.225 16.488 10.1 5.056-6.15 4.836-4.833 14.07-11.2 4.616-17.844-8.828 4.45-34.7z"/></svg>
+                                <svg id="part-stomach" data-position="stomach" data-label="Abdômen / Flancos" class="stomach" xmlns="http://www.w3.org/2000/svg" width="75.25" height="107.594" viewBox="0 0 75.25 107.594"><path d="M19.25 7.49l16.6-7.5-.5 12.16-14.943 7.662zm-10.322 8.9l6.9 3.848-.8-9.116zm5.617-8.732L1.32 2.15 6.3 15.6zm-8.17 9.267l9.015 5.514 1.54 11.028-8.795-5.735zm15.53 5.89l.332 8.662 12.286-2.665.664-11.826zm14.61 84.783L33.28 76.062l-.08-20.53-11.654-5.736-1.32 37.5zM22.735 35.64L22.57 46.3l11.787 3.166.166-16.657zm-14.16-5.255L16.49 35.9l1.1 11.25-8.8-7.06zm8.79 22.74l-9.673-7.28-.84 9.78L-.006 68.29l10.564 14.594 5.5.883 1.98-20.735zM56 7.488l-16.6-7.5.5 12.16 14.942 7.66zm10.32 8.9l-6.9 3.847.8-9.116zm-5.617-8.733L73.93 2.148l-4.98 13.447zm8.17 9.267l-9.015 5.514-1.54 11.03 8.8-5.736zm-15.53 5.89l-.332 8.662-12.285-2.665-.664-11.827zm-14.61 84.783l3.234-31.536.082-20.532 11.65-5.735 1.32 37.5zm13.78-71.957l.166 10.66-11.786 3.168-.166-16.657zm14.16-5.256l-7.915 5.514-1.1 11.25 8.794-7.06zm-8.79 22.743l9.673-7.28.84 9.78 6.862 12.66-10.564 14.597-5.5.883-1.975-20.74z"/></svg>
+                                <svg id="part-legs" data-position="legs" data-label="Coxas / Pernas" class="legs" xmlns="http://www.w3.org/2000/svg" width="93.626" height="286.625" viewBox="0 0 93.626 286.625"><path d="M17.143 138.643l-.664 5.99 4.647 5.77 1.55 9.1 3.1 1.33 2.655-13.755 1.77-4.88-1.55-3.107zm20.582.444l-3.32 9.318-7.082 13.755 1.77 12.647 5.09-14.2 4.205-7.982zm-26.557-12.645l5.09 27.29-3.32-1.777-2.656 8.875zm22.795 42.374l-1.55 4.88-3.32 20.634-.442 27.51 4.65 26.847-.223-34.39 4.87-13.754.663-15.087zM23.34 181.24l1.106 41.267 8.853 33.28-9.628-4.55-16.045-57.8 5.533-36.384zm15.934 80.536l-.664 18.415-1.55 6.435h-4.647l-1.327-4.437-1.55-.222.332 4.437-5.864-1.778-1.55-.887-6.64-1.442-.22-5.214 6.418-10.87 4.426-5.548 10.844-4.437zM13.63 3.076v22.476l15.71 31.073 9.923 30.85L38.23 66.1zm25.49 30.248l.118-.148-.793-2.024L21.9 12.992l-1.242-.44L31.642 40.93zM32.865 44.09l6.812 17.6 2.274-21.596-1.344-3.43zM6.395 61.91l.827 25.34 12.816 35.257-3.928 10.136L3.5 88.133zM30.96 74.69l.345.826 6.47 15.48-4.177 38.342-6.594-3.526 5.715-35.7zm45.5 63.953l.663 5.99-4.647 5.77-1.55 9.1-3.1 1.33-2.655-13.755-1.77-4.88 1.55-3.107zm-20.582.444l3.32 9.318 7.08 13.755-1.77 12.647-5.09-14.2-4.2-7.987zm3.762 29.73l1.55 4.88 3.32 20.633.442 27.51-4.648 26.847.22-34.39-4.867-13.754-.67-15.087zm10.623 12.424l-1.107 41.267-8.852 33.28 9.627-4.55 16.046-57.8-5.533-36.384zM54.33 261.777l.663 18.415 1.546 6.435h4.648l1.328-4.437 1.55-.222-.333 4.437 5.863-1.778 1.55-.887 6.638-1.442.222-5.214-6.418-10.868-4.426-5.547-10.844-4.437zm25.643-258.7v22.476L64.26 56.625l-9.923 30.85L55.37 66.1zM54.48 33.326l-.118-.15.793-2.023L71.7 12.993l1.24-.44L61.96 40.93zm6.255 10.764l-6.812 17.6-2.274-21.595 1.344-3.43zm26.47 17.82l-.827 25.342-12.816 35.256 3.927 10.136 12.61-44.51zM62.64 74.693l-.346.825-6.47 15.48 4.178 38.342 6.594-3.527-5.715-35.7zm19.792 51.75l-5.09 27.29 3.32-1.776 2.655 8.875zM9.495-.007l.827 21.373-7.028 42.308-3.306-34.155zm2.068 27.323L26.24 59.707l3.307 26-6.2 36.58L9.91 85.046l-.827-38.342zM84.103-.01l-.826 21.375 7.03 42.308 3.306-34.155zm-2.066 27.325L67.36 59.707l-3.308 26 6.2 36.58 13.436-37.24.827-38.34z"/></svg>
+                                <svg id="part-hands" data-position="hands" data-label="Mãos" class="hands" xmlns="http://www.w3.org/2000/svg" width="205" height="38.938" viewBox="0 0 205 38.938"><path d="M21.255-.002l2.88 6.9 8.412 1.335.664 12.458-4.427 17.8-2.878-.22 2.8-11.847-2.99-.084-4.676 12.6-3.544-.446 4.4-12.736-3.072-.584-5.978 13.543-4.428-.445 6.088-14.1-2.1-1.25-7.528 12.012-3.764-.445L12.4 12.9l-1.107-1.78L.665 15.57 0 13.124l8.635-7.786zm162.49 0l-2.88 6.9-8.412 1.335-.664 12.458 4.427 17.8 2.878-.22-2.8-11.847 2.99-.084 4.676 12.6 3.544-.446-4.4-12.736 3.072-.584 5.978 13.543 4.428-.445-6.088-14.1 2.1-1.25 7.528 12.012 3.764-.445L192.6 12.9l1.107-1.78 10.628 4.45.665-2.447-8.635-7.786z"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos e Distribuição -->
+                    <div class="space-y-6 flex flex-col">
+                        <!-- Donut Chart -->
+                        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 flex flex-col items-center justify-center flex-grow relative print-border">
+                            <h3 class="text-base font-bold text-slate-900 absolute top-5 left-5">Composição Corporal</h3>
+                            <div class="w-full max-w-[200px] aspect-square relative mt-8">
+                                <canvas id="chart-mass"></canvas>
+                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Peso Total</span>
+                                    <span class="text-2xl font-extrabold text-slate-900 leading-none" id="chart-center-val">--</span>
+                                    <span class="text-[10px] font-bold text-slate-500">kg</span>
+                                </div>
+                            </div>
+                            <!-- Mini legenda -->
+                            <div class="flex gap-5 mt-4">
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600"><span class="w-3 h-3 rounded-sm bg-red-400"></span> Gorda: <span id="chart-leg-mg">--</span> kg</div>
+                                <div class="flex items-center gap-2 text-xs font-bold text-slate-600"><span class="w-3 h-3 rounded-sm bg-emerald-500"></span> Magra: <span id="chart-leg-mm">--</span> kg</div>
+                            </div>
+                        </div>
+
+                        <!-- Distribuição Central vs Periférica -->
+                        <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 border border-slate-100 print-border">
+                            <h3 class="text-base font-bold text-slate-900 mb-4">Distribuição de Gordura</h3>
+                            <div class="mb-4">
+                                <div class="flex justify-between items-end mb-1.5">
+                                    <div><span class="block text-sm font-bold text-slate-700">Central (Tronco)</span><span class="block text-[10px] font-bold text-slate-400 uppercase">Risco Metabólico</span></div>
+                                    <span class="text-lg font-extrabold text-amber-500" id="dist-central">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner"><div id="bar-central" class="bg-gradient-to-r from-amber-400 to-orange-500 h-3 rounded-full transition-all duration-1000 ease-out w-0"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-end mb-1.5">
+                                    <div><span class="block text-sm font-bold text-slate-700">Periférica (Membros)</span><span class="block text-[10px] font-bold text-slate-400 uppercase">Subcutânea</span></div>
+                                    <span class="text-lg font-extrabold text-blue-500" id="dist-periferica">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner"><div id="bar-periferica" class="bg-gradient-to-r from-blue-400 to-indigo-500 h-3 rounded-full transition-all duration-1000 ease-out w-0"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ====== SEÇÕES EXCLUSIVAS PARA PDF (Print-Only) ====== -->
+        <!-- Tabela de Perímetros -->
+        <div class="hidden print-show mt-6 print-page-break" style="display:none;">
+            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2 border-b pb-2 border-slate-200"><i class="fa-solid fa-ruler-combined text-blue-500 mr-1"></i> Tabela Completa de Perímetros (cm)</h3>
+            <table class="print-table mb-4" id="print-perimetros-table"></table>
+            <h4 class="text-sm font-bold text-slate-700 mb-2 mt-4">Perímetros Bilaterais</h4>
+            <table class="print-table" id="print-bilaterais-table"></table>
+        </div>
+
+        <!-- Tabela de Dobras -->
+        <div class="hidden print-show mt-6" style="display:none;">
+            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2 border-b pb-2 border-slate-200"><i class="fa-solid fa-hand-pinch text-amber-500 mr-1"></i> Tabela Completa de Dobras Cutâneas (mm)</h3>
+            <table class="print-table" id="print-dobras-table"></table>
+        </div>
+
+        <!-- Glossário de Índices e Siglas (Print Only) -->
+        <div class="hidden print-show mt-6 print-page-break" style="display:none;">
+            <h3 class="text-base font-bold text-slate-900 mb-3 flex items-center gap-2 border-b pb-2 border-slate-200"><i class="fa-solid fa-book-open text-indigo-500 mr-1"></i> Glossário — O que cada índice significa</h3>
+            <table class="print-table">
+                <tr><th style="width:22%;">Sigla / Índice</th><th style="width:30%;">Nome Completo</th><th>O que é e para que serve</th></tr>
+                <tr><td><b>%BF</b></td><td>Body Fat (Percentual de Gordura)</td><td>Proporção de gordura em relação ao peso corporal total. É o principal indicador da composição corporal, calculado aqui pelo protocolo de Jackson, Pollock & Ward com 7 dobras cutâneas e convertido pela equação de Siri.</td></tr>
+                <tr><td><b>Massa Gorda</b></td><td>Massa de Tecido Adiposo</td><td>Peso absoluto (em kg) de todo o tecido gorduroso do corpo. Obtido multiplicando o %BF pelo peso corporal. Quanto menor em relação à massa magra, melhor a composição corporal.</td></tr>
+                <tr><td><b>Massa Magra</b></td><td>Massa Livre de Gordura</td><td>Tudo no corpo que não é gordura: músculos, ossos, órgãos, água e tecidos. É o principal indicador de musculatura e saúde estrutural. Obtido subtraindo a massa gorda do peso total.</td></tr>
+                <tr><td><b>RCQ</b></td><td>Relação Cintura-Quadril</td><td>Divisão da circunferência da cintura pela do quadril. Avalia a distribuição de gordura no tronco. Valores acima de 0,90 (homens) ou 0,85 (mulheres) indicam maior concentração de gordura abdominal e risco cardiovascular elevado.</td></tr>
+                <tr><td><b>IMC</b></td><td>Índice de Massa Corporal</td><td>Fórmula da OMS: Peso ÷ Altura². Classifica a faixa de peso, mas <u>não diferencia gordura de músculo</u>. Pessoas com muita massa muscular podem ter IMC elevado sem excesso de gordura. Deve sempre ser interpretado junto ao %BF.</td></tr>
+                <tr><td><b>IAC</b></td><td>Índice de Adiposidade Corporal</td><td>Estima a gordura corporal usando a circunferência do quadril e a altura, sem depender do peso. Serve como alternativa ao IMC, com melhor correlação em determinados biotipos. Fórmula: (Quadril / Altura^1.5) − 18.</td></tr>
+                <tr><td><b>IC</b></td><td>Índice de Conicidade</td><td>Avalia o formato do tronco: quanto mais cônico (cintura larga), maior o acúmulo de gordura visceral. Valores acima de 1,25 indicam risco cardiovascular aumentado. Fórmula: Cintura(m) ÷ (0,109 × √(Peso/Altura)).</td></tr>
+                <tr><td><b>Σ7DC</b></td><td>Somatório de 7 Dobras Cutâneas</td><td>Soma das 7 dobras do protocolo (Subescapular, Tríceps, Peitoral, Axilar Média, Suprailíaca, Abdominal e Coxa). É o valor bruto que alimenta a equação de densidade corporal.</td></tr>
+                <tr><td><b>DC</b></td><td>Densidade Corporal</td><td>Valor intermediário calculado pela equação de Jackson & Pollock (1980). É convertido em %BF pela equação de Siri: %BF = (4,95/DC − 4,50) × 100.</td></tr>
+                <tr><td><b>Expansib. Torácica</b></td><td>Expansibilidade Torácica</td><td>Diferença entre o perímetro do tórax em inspiração máxima e em repouso (relaxado). Avalia a capacidade respiratória e a flexibilidade da caixa torácica. Valores ideais ficam acima de 3 cm.</td></tr>
+                <tr><td><b>Peso Ideal</b></td><td>Peso Corporal Meta</td><td>Peso estimado que o avaliado teria se atingisse o percentual de gordura desejado (meta padrão: 15%), mantendo toda a massa magra atual. Fórmula: Massa Magra ÷ (1 − meta/100).</td></tr>
+            </table>
+        </div>
+
+        <!-- Rodapé Profissional do PDF -->
+        <div class="hidden print-show mt-10 pt-6 border-t-2 border-slate-300" style="display:none;">
+            <div class="grid grid-cols-2 gap-8">
+                <div class="text-center">
+                    <div class="border-b border-slate-400 mb-2 pb-8"></div>
+                    <p class="text-sm font-bold text-slate-700" id="print-avaliador">Profissional Avaliador</p>
+                    <p class="text-xs text-slate-500" id="print-cref"></p>
+                </div>
+                <div class="text-center">
+                    <div class="border-b border-slate-400 mb-2 pb-8"></div>
+                    <p class="text-sm font-bold text-slate-700" id="print-avaliado-assin">Avaliado</p>
+                </div>
+            </div>
+            <p class="text-[9px] text-slate-400 text-center mt-6 leading-relaxed">Avaliação baseada em protocolos científicos validados pela literatura internacional. Os resultados são indicativos e devem ser interpretados por profissional habilitado.<br>Protocolo de Densidade Corporal: Jackson, Pollock & Ward (1980). Conversão: Equação de Siri. Software: BioMetrics Pro.</p>
+        </div>
+
+    </main>
+
+    <!-- ====== LÓGICA JAVASCRIPT COMPLETA ====== -->
+    <script>
+        let massChart = null;
+        const fmt = (n) => parseFloat(n).toFixed(1);
+        const fmt2 = (n) => parseFloat(n).toFixed(2);
+        const fmt6 = (n) => parseFloat(n).toFixed(6);
+        const V = (id) => parseFloat(document.getElementById(id).value) || 0;
+
+        // ========== INICIALIZAÇÃO DO CHART.JS ==========
+        function initChart() {
+            const ctx = document.getElementById('chart-mass').getContext('2d');
+            const gFat = ctx.createLinearGradient(0,0,0,400); gFat.addColorStop(0,'#f87171'); gFat.addColorStop(1,'#ef4444');
+            const gLean = ctx.createLinearGradient(0,0,0,400); gLean.addColorStop(0,'#34d399'); gLean.addColorStop(1,'#10b981');
+            massChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: ['Massa Gorda (kg)','Massa Magra (kg)'], datasets: [{ data: [1,99], backgroundColor: [gFat,gLean], borderWidth:0, hoverOffset:6, borderRadius:4 }] },
+                options: { responsive:true, maintainAspectRatio:true, cutout:'78%', plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#0f172a', titleFont:{family:'Outfit',size:12}, bodyFont:{family:'Outfit',size:13,weight:'bold'}, padding:10, cornerRadius:8, callbacks:{ label: (c) => ` ${c.raw} kg` } } }, animation:{animateScale:true,animateRotate:true} }
+            });
+        }
+        function updateChart(fat, lean) {
+            massChart.data.datasets[0].data = [fmt(fat), fmt(lean)];
+            massChart.update();
+            document.getElementById('chart-center-val').innerText = fmt(fat+lean);
+            document.getElementById('chart-leg-mg').innerText = fmt(fat);
+            document.getElementById('chart-leg-mm').innerText = fmt(lean);
+        }
+
+        // ========== CLASSIFICAÇÕES DE SAÚDE ==========
+        function clsBF(bf) {
+            if (bf<8) return {t:"Essencial",c:"bg-blue-100 text-blue-700 border border-blue-200"};
+            if (bf<=15) return {t:"Atlético",c:"bg-emerald-100 text-emerald-700 border border-emerald-200"};
+            if (bf<=24) return {t:"Normal",c:"bg-emerald-50 text-emerald-700 border border-emerald-200"};
+            if (bf<=30) return {t:"Acima da Média",c:"bg-amber-100 text-amber-700 border border-amber-200"};
+            return {t:"Risco Obesidade",c:"bg-red-100 text-red-700 border border-red-200"};
+        }
+        function clsRCQ(rcq) {
+            if (rcq<0.90) return {t:"Risco Baixo",c:"bg-emerald-100 text-emerald-700 border border-emerald-200"};
+            if (rcq<=0.95) return {t:"Risco Moderado",c:"bg-amber-100 text-amber-700 border border-amber-200"};
+            return {t:"Risco Alto",c:"bg-red-100 text-red-700 border border-red-200"};
+        }
+        function clsIMC(imc) {
+            if (imc<18.5) return {t:"Abaixo do Peso",c:"bg-blue-100 text-blue-700 border border-blue-200"};
+            if (imc<=24.9) return {t:"Peso Normal",c:"bg-emerald-100 text-emerald-700 border border-emerald-200"};
+            if (imc<=29.9) return {t:"Sobrepeso",c:"bg-amber-100 text-amber-700 border border-amber-200"};
+            return {t:"Obesidade",c:"bg-red-100 text-red-700 border border-red-200"};
+        }
+        function clsIAC(iac) {
+            if (iac<8) return {t:"Adiposidade Baixa",c:"bg-blue-100 text-blue-700 border border-blue-200"};
+            if (iac<=20) return {t:"Normal",c:"bg-emerald-100 text-emerald-700 border border-emerald-200"};
+            if (iac<=25) return {t:"Sobrepeso",c:"bg-amber-100 text-amber-700 border border-amber-200"};
+            return {t:"Obesidade",c:"bg-red-100 text-red-700 border border-red-200"};
+        }
+        function clsIC(ic) {
+            if (ic<1.25) return {t:"Normal",c:"bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"};
+            return {t:"Risco Elevado",c:"bg-red-500/20 text-red-300 border border-red-500/30"};
+        }
+
+        function tag(id, obj) {
+            const el = document.getElementById(id);
+            el.innerText = obj.t;
+            el.className = `mt-2 text-[11px] font-bold px-2 py-1 rounded-lg inline-block w-max shadow-sm relative z-10 ${obj.c}`;
+        }
+
+        // ========== TOOLTIP DO CORPO ==========
+        function setupBodyTooltips() {
+            const tooltip = document.getElementById('body-tooltip');
+            const svgs = document.querySelectorAll('#body-map svg');
+            svgs.forEach(svg => {
+                svg.addEventListener('mouseenter', (e) => {
+                    const pos = svg.getAttribute('data-position');
+                    const info = getBodyRegionInfo(pos);
+                    if (!info) return;
+                    let html = `<div class="font-bold text-sm mb-1">${info.label}</div>`;
+                    info.folds.forEach(f => {
+                        const dotColor = f.status === 'alert' ? '#ef4444' : f.status === 'warning' ? '#f59e0b' : '#10b981';
+                        html += `<div class="flex items-center gap-2 mt-1"><span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;flex-shrink:0;"></span><span>${f.name}: <b>${f.value} mm</b></span></div>`;
+                    });
+                    if (info.note) html += `<div class="text-slate-400 mt-2 text-[10px] italic">${info.note}</div>`;
+                    tooltip.innerHTML = html;
+                    tooltip.classList.add('visible');
+                });
+                svg.addEventListener('mousemove', (e) => {
+                    tooltip.style.left = (e.clientX + 16) + 'px';
+                    tooltip.style.top = (e.clientY - 10) + 'px';
+                });
+                svg.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('visible');
+                });
+            });
+        }
+
+        // Informações dinâmicas por região (lidas dos inputs)
+        function getBodyRegionInfo(pos) {
+            const sub=V('subescapular'),tri=V('triceps'),pei=V('peitoral'),axi=V('axilar'),sup=V('suprailiaca'),abd=V('abdominal'),cox=V('coxa');
+            const status = (val,w,a) => val>a?'alert':val>w?'warning':'safe';
+            const map = {
+                head: { label:'Cabeça', folds:[], note:'Região sem acúmulo de gordura mensurável.' },
+                shoulder: { label:'Ombros / Costas', folds:[{name:'Subescapular',value:fmt(sub),status:status(sub,15,20)}] },
+                arm: { label:'Braços', folds:[{name:'Tríceps',value:fmt(tri),status:status(tri,10,15)}] },
+                cheast: { label:'Peitoral / Tórax', folds:[{name:'Peitoral',value:fmt(pei),status:status(pei,10,15)},{name:'Axilar Média',value:fmt(axi),status:status(axi,10,15)}] },
+                stomach: { label:'Abdômen / Flancos', folds:[{name:'Suprailíaca',value:fmt(sup),status:status(sup,15,20)},{name:'Abdominal',value:fmt(abd),status:status(abd,15,18)}], note:sup>20||abd>18?'⚠ Concentração elevada de gordura central.':'' },
+                legs: { label:'Coxas / Pernas', folds:[{name:'Coxa Medial',value:fmt(cox),status:status(cox,15,20)}] },
+                hands: { label:'Mãos', folds:[], note:'Região sem acúmulo de gordura mensurável.' }
+            };
+            return map[pos] || null;
+        }
+
+        // ========== CALLOUT LABELS LATERAIS ==========
+        function renderCallouts() {
+            const sub=V('subescapular'),tri=V('triceps'),pei=V('peitoral'),axi=V('axilar'),sup=V('suprailiaca'),abd=V('abdominal'),cox=V('coxa');
+            const cls = (v,w,a) => v>a?'callout-alert':v>w?'callout-warning':'callout-safe';
+            const container = document.getElementById('callouts-container');
+            // Posições calibradas relativas ao wrapper 320x520
+            // Posições recalibradas para apontar precisamente para a região anatômica correta
+            const callouts = [
+                { label:'Tríceps', val:tri, cls:cls(tri,10,15), side:'left', top:165, left:2 },
+                { label:'Coxa', val:cox, cls:cls(cox,15,20), side:'left', top:270, left:22 },
+                { label:'Subescap.', val:sub, cls:cls(sub,15,20), side:'right', top:88, right:2 },
+                { label:'Peitoral', val:pei, cls:cls(pei,10,15), side:'right', top:115, right:2 },
+                { label:'Axilar M.', val:axi, cls:cls(axi,10,15), side:'right', top:142, right:2 },
+                { label:'Supraíl.', val:sup, cls:cls(sup,15,20), side:'right', top:175, right:2 },
+                { label:'Abdominal', val:abd, cls:cls(abd,15,18), side:'right', top:205, right:2 },
+            ];
+            let html = '';
+            callouts.forEach(c => {
+                if (c.val <= 0) return; // Não exibir se valor for 0
+                const posStyle = c.side === 'left' ? `left:${c.left}px;top:${c.top}px;` : `right:${c.right}px;top:${c.top}px;`;
+                html += `<div class="callout-label ${c.side} ${c.cls}" style="${posStyle}">${c.label}: ${fmt(c.val)}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ========== FUNÇÃO PRINCIPAL DE CÁLCULO ==========
+        function processarAvaliacao() {
+            // Coleta
+            const nome=document.getElementById('nome').value, idade=V('idade'), peso=V('peso'), altura=V('altura');
+            const cintura=V('cintura'), quadril=V('quadril');
+            const toraxRel=V('torax_rel'), toraxInsp=V('torax_insp');
+            const sub=V('subescapular'),tri=V('triceps'),pei=V('peitoral'),axi=V('axilar'),sup=V('suprailiaca'),abd=V('abdominal'),cox=V('coxa');
+
+            // Motor Matemático
+            const sum7 = sub+tri+pei+axi+sup+abd+cox;
+            const dc = 1.112 - (0.00043499*sum7) + (0.00000055*(sum7*sum7)) - (0.00028826*idade);
+            let bf = ((4.95/dc)-4.50)*100;
+            if (bf<0) bf=0.1;
+
+            const fatMass = peso*(bf/100);
+            const leanMass = peso-fatMass;
+            const alturaM = altura/100;
+            const imc = alturaM>0 ? peso/(alturaM*alturaM) : 0;
+            const rcq = quadril>0 ? cintura/quadril : 0;
+            const iac = (alturaM>0 && quadril>0) ? (quadril/(alturaM*Math.sqrt(alturaM)))-18 : 0;
+            const pesoIdealMeta = 15; // meta 15% BF
+            const pesoIdeal = leanMass / (1 - pesoIdealMeta/100);
+            const gorduraPerder = peso - pesoIdeal;
+            const ic = (alturaM>0 && peso>0) ? (cintura/100) / (0.109 * Math.sqrt(peso/alturaM)) : 0;
+            const expTorax = toraxInsp - toraxRel;
+            const percMM = peso>0 ? (leanMass/peso)*100 : 0;
+
+            // Injeção nos KPIs
+            document.getElementById('res-bf').innerText = fmt(bf);
+            document.getElementById('res-mg').innerText = fmt(fatMass);
+            document.getElementById('res-mm').innerText = fmt(leanMass);
+            document.getElementById('res-rcq').innerText = fmt2(rcq);
+            document.getElementById('res-imc').innerText = fmt(imc);
+            document.getElementById('res-iac').innerText = Math.round(iac);
+
+            // Atualiza Termômetros Visuais (clamp garante que não sai de 0 a 100%)
+            const clamp = (val, min, max) => Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100));
+            document.getElementById('therm-bf').style.left = clamp(bf, 5, 35) + '%';
+            document.getElementById('therm-mg').style.left = clamp(fatMass, 0, peso || 100) + '%';
+            document.getElementById('therm-mm').style.left = clamp(leanMass, 0, peso || 100) + '%';
+            document.getElementById('therm-rcq').style.left = clamp(rcq, 0.7, 1.15) + '%';
+            document.getElementById('therm-imc').style.left = clamp(imc, 15, 40) + '%';
+            document.getElementById('therm-iac').style.left = clamp(iac, 10, 40) + '%';
+
+            tag('class-bf', clsBF(bf));
+            tag('class-rcq', clsRCQ(rcq));
+            tag('class-iac', clsIAC(iac));
+
+            // ========== IMC INTELIGENTE ==========
+            const imcNota = document.getElementById('imc-nota');
+            const imcNotaText = document.getElementById('imc-nota-text');
+            const cardImc = document.getElementById('card-imc');
+
+            if (imc > 24.9 && bf <= 24) {
+                // IMC diz sobrepeso, mas %BF é saudável → massa magra alta
+                tag('class-imc', {t:"Massa Magra Alta", c:"bg-blue-100 text-blue-700 border border-blue-200"});
+                cardImc.classList.remove('hover:border-purple-200','hover:border-amber-200');
+                cardImc.classList.add('hover:border-blue-200');
+                imcNota.classList.remove('hidden');
+                imcNotaText.innerHTML = `O IMC de <b>${fmt(imc)} kg/m²</b> indica sobrepeso pela tabela da OMS. Porém, o percentual de gordura é de apenas <b>${fmt(bf)}%</b> (faixa ${bf<=15?'atlética':'saudável'}). A massa magra de <b>${fmt(leanMass)} kg</b> (${Math.round(percMM)}% do peso corporal) justifica o peso elevado, tornando o IMC <u>pouco relevante</u> para este perfil. A composição corporal real é mais confiável que o IMC isolado.`;
+            } else {
+                tag('class-imc', clsIMC(imc));
+                cardImc.classList.remove('hover:border-blue-200');
+                cardImc.classList.add('hover:border-purple-200');
+                imcNota.classList.add('hidden');
+            }
+
+            // Análise Clínica
+            document.getElementById('res-peso-ideal').innerText = fmt(pesoIdeal) + ' kg';
+            document.getElementById('res-peso-ideal-nota').innerText = `Meta de ${pesoIdealMeta}% de gordura`;
+            document.getElementById('res-gordura-perder').innerText = gorduraPerder > 0 ? fmt(gorduraPerder) + ' kg' : 'Meta atingida';
+            document.getElementById('res-ic').innerText = fmt2(ic);
+            tag('class-ic', clsIC(ic));
+            document.getElementById('res-exp-torax').innerText = (toraxRel>0 && toraxInsp>0) ? fmt(expTorax) + ' cm' : '--';
+
+            // Dados Técnicos
+            document.getElementById('res-sum7').innerText = fmt(sum7);
+            document.getElementById('res-dc').innerText = fmt6(dc);
+            document.getElementById('res-perc-mm').innerText = fmt(percMM) + '%';
+
+            // Gráfico
+            updateChart(fatMass, leanMass);
+
+            // Distribuição Central vs Periférica
+            const distC = sub+pei+axi+sup+abd, distP = tri+cox, distT = distC+distP;
+            const pC = distT>0?(distC/distT)*100:0, pP = distT>0?(distP/distT)*100:0;
+            document.getElementById('dist-central').innerText = Math.round(pC)+'%';
+            document.getElementById('bar-central').style.width = pC+'%';
+            document.getElementById('dist-periferica').innerText = Math.round(pP)+'%';
+            document.getElementById('bar-periferica').style.width = pP+'%';
+
+            // Hotspots SVG
+            resetHotspots();
+            const hs = (id, cond_alert, cond_warn) => {
+                const el = document.getElementById(id);
+                if (cond_alert) el.classList.add('alert-hotspot');
+                else if (cond_warn) el.classList.add('warning-hotspot');
+                else el.classList.add('safe-hotspot');
+            };
+            hs('part-stomach', sup>20||abd>18, sup>15||abd>15);
+            hs('part-cheast', false, pei>15||sub>20);
+            hs('part-shoulder', false, sub>20);
+            hs('part-arm', false, tri>15);
+            hs('part-legs', false, cox>20);
+            document.getElementById('part-head').classList.add('safe-hotspot');
+            document.getElementById('part-hands').classList.add('safe-hotspot');
+
+            // Callouts
+            renderCallouts();
+
+            // ========== PDF: Print data ==========
+            const now = new Date();
+            document.getElementById('print-date').innerText = now.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}) + ' às ' + now.toLocaleTimeString('pt-BR');
+            document.getElementById('print-nome').innerText = nome||'Não informado';
+            document.getElementById('print-idade').innerText = idade + ' anos';
+            document.getElementById('print-peso-altura').innerText = `${fmt(peso)} kg / ${altura} cm`;
+            document.getElementById('res-imc-print').innerText = fmt(imc) + ' kg/m²';
+            document.getElementById('print-avaliador').innerText = document.getElementById('avaliador').value || 'Profissional Avaliador';
+            document.getElementById('print-cref').innerText = document.getElementById('cref').value ? 'CREF ' + document.getElementById('cref').value : '';
+            document.getElementById('print-avaliado-assin').innerText = nome || 'Avaliado';
+
+            // Tabela Perímetros (print)
+            const perData = [
+                ['Pescoço',V('pescoco')],['Ombro',V('ombro')],['Tórax Relaxado',toraxRel],['Tórax Inspirado',toraxInsp],
+                ['Expansibilidade',expTorax],['Cintura',cintura],['Abdome',V('abdome_per')],['Quadril',quadril],['RCQ',fmt2(rcq)]
+            ];
+            let ptHTML = '<tr><th>Região</th><th>Valor</th></tr>';
+            perData.forEach(r => { if(r[1] && r[1]!==0) ptHTML += `<tr><td>${r[0]}</td><td><b>${typeof r[1]==='number'?fmt(r[1]):r[1]}</b> ${r[0]==='RCQ'?'':'cm'}</td></tr>`; });
+            document.getElementById('print-perimetros-table').innerHTML = ptHTML;
+
+            const bilData = [
+                ['Braço Relaxado',V('braco_rel_e'),V('braco_rel_d')],['Braço Contraído',V('braco_cont_e'),V('braco_cont_d')],
+                ['Antebraço',V('antebraco_e'),V('antebraco_d')],['Coxa',V('coxa_per_e'),V('coxa_per_d')],
+                ['Panturrilha',V('panturrilha_e'),V('panturrilha_d')]
+            ];
+            let btHTML = '<tr><th>Membro</th><th>Esquerdo</th><th>Direito</th><th>Diferença</th></tr>';
+            bilData.forEach(r => { const diff=Math.abs(r[1]-r[2]); if(r[1]||r[2]) btHTML += `<tr><td>${r[0]}</td><td>${fmt(r[1])} cm</td><td>${fmt(r[2])} cm</td><td>${fmt(diff)} cm</td></tr>`; });
+            document.getElementById('print-bilaterais-table').innerHTML = btHTML;
+
+            // Tabela Dobras (print)
+            const dobData = [
+                ['Subescapular',sub],['Tríceps',tri],['Bíceps',V('biceps')],['Peitoral/Tórax',pei],
+                ['Axilar Média',axi],['Suprailíaca',sup],['Abdominal',abd],['Coxa Medial',cox],['Panturrilha',V('panturrilha_dobra')]
+            ];
+            let dtHTML = '<tr><th>Dobra</th><th>Valor (mm)</th><th>Status</th></tr>';
+            const statusDobra = (v,w,a) => v>a?'<span style="color:#dc2626;font-weight:700;">⬤ Alerta</span>':v>w?'<span style="color:#d97706;font-weight:700;">⬤ Atenção</span>':'<span style="color:#059669;font-weight:700;">⬤ Normal</span>';
+            dobData.forEach(r => { if(r[1]>0) dtHTML += `<tr><td>${r[0]}</td><td><b>${fmt(r[1])}</b></td><td>${statusDobra(r[1],15,20)}</td></tr>`; });
+            dtHTML += `<tr style="background:#f1f5f9;font-weight:700;"><td>Σ 7 Dobras (Jackson & Pollock)</td><td><b>${fmt(sum7)} mm</b></td><td></td></tr>`;
+            dtHTML += `<tr><td>Densidade Corporal</td><td colspan="2"><b>${fmt6(dc)} g/cm³</b></td></tr>`;
+            dtHTML += `<tr><td>Equação de Siri → %BF</td><td colspan="2"><b>${fmt(bf)}%</b></td></tr>`;
+            document.getElementById('print-dobras-table').innerHTML = dtHTML;
+        }
+
+        function resetHotspots() {
+            ['head','shoulder','arm','cheast','stomach','legs','hands'].forEach(p => {
+                const el = document.getElementById('part-'+p);
+                if(el) el.classList.remove('alert-hotspot','warning-hotspot','safe-hotspot');
+            });
+        }
+
+        // ========== BOOT ==========
+        window.onload = function() {
+            initChart();
+            setupBodyTooltips();
+            document.getElementById('btn-calcular').addEventListener('click', processarAvaliacao);
+            processarAvaliacao();
+        }
+    </script>
+</body>
+</html>
+
